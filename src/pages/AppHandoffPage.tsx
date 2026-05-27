@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
-import { supabase } from '../auth/supabaseClient'
+import { BASE_URL, setCsrfToken } from '../api/client'
 
 const SAFE_REDIRECTS = new Set(['/', '/account', '/profiles', '/provider-imports', '/addons', '/api-keys'])
 
@@ -10,27 +10,38 @@ function safeRedirect(value: string | null): string {
   return '/account'
 }
 
+function ExchangeFailure({ error }: { error: string }) {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-stone-950">
+      <div className="text-center max-w-sm">
+        <h1 className="text-lg font-medium text-red-400 mb-2">Sign in failed</h1>
+        <p className="text-sm text-stone-500">{error}</p>
+      </div>
+    </div>
+  )
+}
+
 export function AppHandoffPage() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const code = searchParams.get('code')
   const redirect = safeRedirect(searchParams.get('redirect'))
+
   const [error, setError] = useState<string | null>(null)
+  const [exchanged, setExchanged] = useState(false)
 
   useEffect(() => {
-    if (!code) {
-      setError('Missing handoff code.')
-      return
-    }
+    if (!code || exchanged) return
 
     let cancelled = false
     ;(async () => {
       try {
         const res = await fetch(
-          `${import.meta.env.VITE_CRISPY_API_BASE_URL}/v1/auth/portal-handoff/exchange`,
+          `${BASE_URL}/v1/auth/portal-handoff/exchange`,
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
             body: JSON.stringify({ code }),
           },
         )
@@ -40,17 +51,12 @@ export function AppHandoffPage() {
         }
         const envelope = await res.json()
         const data = envelope?.data ?? envelope
-        const { accessToken, refreshToken } = data
-        if (!accessToken || !refreshToken) {
-          throw new Error('Server did not return session tokens.')
+        if (data.csrfToken) {
+          setCsrfToken(data.csrfToken)
         }
 
-        await supabase.auth.setSession({
-          access_token: accessToken,
-          refresh_token: refreshToken,
-        })
-
         if (!cancelled) {
+          setExchanged(true)
           navigate(redirect, { replace: true })
         }
       } catch (e) {
@@ -59,17 +65,14 @@ export function AppHandoffPage() {
     })()
 
     return () => { cancelled = true }
-  }, [code, navigate, redirect])
+  }, [code, navigate, redirect, exchanged])
+
+  if (!code) {
+    return <ExchangeFailure error="Missing handoff code." />
+  }
 
   if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-stone-950">
-        <div className="text-center max-w-sm">
-          <h1 className="text-lg font-medium text-red-400 mb-2">Sign in failed</h1>
-          <p className="text-sm text-stone-500">{error}</p>
-        </div>
-      </div>
-    )
+    return <ExchangeFailure error={error} />
   }
 
   return (

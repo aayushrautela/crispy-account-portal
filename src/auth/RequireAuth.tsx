@@ -1,7 +1,7 @@
 import { useAuth } from './useSession'
 
 export function RequireAuth({ children }: { children: React.ReactNode }) {
-  const { session, loading } = useAuth()
+  const { user, loading } = useAuth()
 
   if (loading) {
     return (
@@ -11,7 +11,7 @@ export function RequireAuth({ children }: { children: React.ReactNode }) {
     )
   }
 
-  if (!session) {
+  if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-stone-950">
         <div className="text-center max-w-sm">

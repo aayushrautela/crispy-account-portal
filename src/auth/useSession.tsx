@@ -1,11 +1,10 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useEffect, useState, useCallback, useMemo, type ReactNode } from 'react'
-import type { Session, User } from '@supabase/supabase-js'
-import { supabase } from './supabaseClient'
-import { initApiClient } from '../api/client'
+import { BASE_URL, setCsrfToken } from '../api/client'
 
 interface AuthState {
-  session: Session | null
-  user: User | null
+  user: { id: string; email: string | null } | null
+  csrfToken: string | null
   loading: boolean
   signOut: () => Promise<void>
 }
@@ -13,37 +12,42 @@ interface AuthState {
 const AuthContext = createContext<AuthState | null>(null)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [session, setSession] = useState<Session | null>(null)
-  const [user, setUser] = useState<User | null>(null)
+  const [user, setUser] = useState<{ id: string; email: string | null } | null>(null)
+  const [csrfToken, setCsrfTokenState] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-      setUser(session?.user ?? null)
-      setLoading(false)
-    })
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
-      setUser(session?.user ?? null)
-    })
-
-    return () => subscription.unsubscribe()
+    fetch(`${BASE_URL}/v1/auth/portal/session`, { credentials: 'include' })
+      .then((res) => res.json())
+      .then((envelope) => {
+        const data = envelope?.data ?? envelope
+        if (data.user) {
+          setUser(data.user)
+          const token = data.csrfToken ?? null
+          setCsrfTokenState(token)
+          setCsrfToken(token)
+        }
+      })
+      .catch(() => {
+        // not authenticated
+      })
+      .finally(() => setLoading(false))
   }, [])
 
   const signOut = useCallback(async () => {
-    await supabase.auth.signOut()
+    await fetch(`${BASE_URL}/v1/auth/portal/sign-out`, {
+      method: 'POST',
+      credentials: 'include',
+    })
+    setUser(null)
+    setCsrfTokenState(null)
+    setCsrfToken(null)
   }, [])
 
   const value = useMemo(
-    () => ({ session, user, loading, signOut }),
-    [session, user, loading, signOut],
+    () => ({ user, csrfToken, loading, signOut }),
+    [user, csrfToken, loading, signOut],
   )
-
-  useEffect(() => {
-    initApiClient(() => value.session?.access_token)
-  }, [value])
 
   return (
     <AuthContext.Provider value={value}>

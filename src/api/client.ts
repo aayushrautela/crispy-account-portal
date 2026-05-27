@@ -4,24 +4,28 @@ if (!BASE_URL) {
   throw new Error('Missing VITE_CRISPY_API_BASE_URL')
 }
 
-let getSessionToken: (() => string | undefined) | null = null
+let _csrfToken: string | null = null
 
-export function initApiClient(getToken: () => string | undefined) {
-  getSessionToken = getToken
+export function setCsrfToken(token: string | null) {
+  _csrfToken = token
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const token = getSessionToken?.()
   const headers: Record<string, string> = {
     ...(init?.headers as Record<string, string>),
   }
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`
+  const method = (init?.method ?? 'GET').toUpperCase()
+  if (method !== 'GET' && _csrfToken) {
+    headers['X-Portal-CSRF'] = _csrfToken
   }
   if (init?.body && typeof init.body === 'string' && !headers['Content-Type']) {
     headers['Content-Type'] = 'application/json'
   }
-  const res = await fetch(`${BASE_URL}${path}`, { ...init, headers })
+  const res = await fetch(`${BASE_URL}${path}`, {
+    ...init,
+    headers,
+    credentials: 'include',
+  })
   if (!res.ok) {
     const body = await res.text()
     throw new Error(`API ${res.status}: ${body}`)
