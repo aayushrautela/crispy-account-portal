@@ -5,11 +5,21 @@ import { AuthLayout, AuthLink } from '../layouts/AuthLayout'
 import { Button } from '../components/Button'
 import { Input } from '../components/Input'
 
+const SAFE_REDIRECTS = new Set(['/', '/account', '/profiles', '/provider-imports', '/addons', '/api-keys'])
+
+function safeRedirect(value: string | null): string {
+  if (!value) return '/'
+  if (value.startsWith('//') || value.startsWith('http:') || value.startsWith('https:') || value.includes('\\')) return '/'
+  if (SAFE_REDIRECTS.has(value)) return value
+  if (value.startsWith('/app-login?')) return value
+  return '/'
+}
+
 export function LoginPage() {
   const { signIn } = useAuth()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const redirect = searchParams.get('redirect') || '/'
+  const redirect = safeRedirect(searchParams.get('redirect'))
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)

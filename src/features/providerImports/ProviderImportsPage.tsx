@@ -63,7 +63,7 @@ function ProviderImportView({ profileId }: { profileId: string }) {
     onSuccess: (result) => {
       const res = result as any
       if (res?.authUrl) {
-        window.open(res.authUrl, '_blank')
+        window.open(res.authUrl, '_blank', 'noopener,noreferrer')
       }
       queryClient.invalidateQueries({ queryKey: ['importConnections', profileId] })
       queryClient.invalidateQueries({ queryKey: ['importJobs', profileId] })
