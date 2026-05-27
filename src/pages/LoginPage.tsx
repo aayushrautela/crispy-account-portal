@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../auth/useSession'
 import { AuthLayout, AuthLink } from '../layouts/AuthLayout'
 import { Button } from '../components/Button'
@@ -8,6 +8,8 @@ import { Input } from '../components/Input'
 export function LoginPage() {
   const { signIn } = useAuth()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const redirect = searchParams.get('redirect') || '/'
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -22,7 +24,7 @@ export function LoginPage() {
     if (error) {
       setError(error)
     } else {
-      navigate('/')
+      navigate(redirect)
     }
   }
 

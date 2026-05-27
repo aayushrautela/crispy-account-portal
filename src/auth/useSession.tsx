@@ -1,6 +1,7 @@
-import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useState, useCallback, useMemo, type ReactNode } from 'react'
 import type { Session, User } from '@supabase/supabase-js'
 import { supabase } from './supabaseClient'
+import { initApiClient } from '../api/client'
 
 interface AuthState {
   session: Session | null
@@ -55,8 +56,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: error?.message ?? null }
   }, [])
 
+  const value = useMemo(
+    () => ({ session, user, loading, signIn, signUp, signOut, resetPassword }),
+    [session, user, loading, signIn, signUp, signOut, resetPassword],
+  )
+
+  useEffect(() => {
+    initApiClient(() => value.session?.access_token)
+  }, [value])
+
   return (
-    <AuthContext.Provider value={{ session, user, loading, signIn, signUp, signOut, resetPassword }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   )

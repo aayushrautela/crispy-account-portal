@@ -7,6 +7,7 @@ import { RequireAuth } from '../auth/RequireAuth'
 import { LoginPage } from '../pages/LoginPage'
 import { SignupPage } from '../pages/SignupPage'
 import { ResetPasswordPage } from '../pages/ResetPasswordPage'
+import { AppLoginPage } from '../pages/AppLoginPage'
 import { DashboardPage } from '../pages/DashboardPage'
 import { AccountSettingsPage } from '../features/account/AccountSettingsPage'
 import { ProfilesPage } from '../features/profiles/ProfilesPage'
@@ -24,6 +25,7 @@ function AppRoutes() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
+      <Route path="/app-login" element={<AppLoginPage />} />
       <Route path="/" element={<RequireAuth><PortalLayout><DashboardPage /></PortalLayout></RequireAuth>} />
       <Route path="/account" element={<RequireAuth><PortalLayout><AccountSettingsPage /></PortalLayout></RequireAuth>} />
       <Route path="/profiles" element={<RequireAuth><PortalLayout><ProfilesPage /></PortalLayout></RequireAuth>} />

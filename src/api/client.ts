@@ -1,6 +1,4 @@
-import { useAuth } from '../auth/useSession'
-
-const BASE_URL = import.meta.env.VITE_CRISPY_API_BASE_URL
+export const BASE_URL = import.meta.env.VITE_CRISPY_API_BASE_URL
 
 if (!BASE_URL) {
   throw new Error('Missing VITE_CRISPY_API_BASE_URL')
@@ -8,8 +6,8 @@ if (!BASE_URL) {
 
 let getSessionToken: (() => string | undefined) | null = null
 
-export function initApiClient(auth: ReturnType<typeof useAuth>) {
-  getSessionToken = () => auth.session?.access_token
+export function initApiClient(getToken: () => string | undefined) {
+  getSessionToken = getToken
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
@@ -121,6 +119,17 @@ export const api = {
       request<{ data: { providerState: unknown } }>(`/v1/profiles/${profileId}/import-connections/${provider}`, {
         method: 'DELETE',
       }).then(responseData),
+  },
+
+  appLogin: {
+    createHandoffCode: (returnUri: string) =>
+      request<{ data: { code: unknown; plaintextCode: string; redirectUri: string | null } }>(
+        '/v1/auth/app-login/handoff-codes',
+        {
+          method: 'POST',
+          body: JSON.stringify({ returnUri }),
+        },
+      ).then(responseData),
   },
 
   pat: {
