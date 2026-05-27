@@ -134,7 +134,7 @@ function DeleteAccountSection({ signOut, navigate }: { signOut: () => Promise<vo
     onSuccess: async () => {
       await signOut()
       queryClient.clear()
-      navigate('/login')
+      navigate('/signed-out')
     },
   })
 

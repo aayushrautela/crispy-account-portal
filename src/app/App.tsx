@@ -4,10 +4,8 @@ import { AuthProvider } from '../auth/useSession'
 import { PortalLayout } from '../layouts/PortalLayout'
 import { RequireAuth } from '../auth/RequireAuth'
 
-import { LoginPage } from '../pages/LoginPage'
-import { SignupPage } from '../pages/SignupPage'
-import { ResetPasswordPage } from '../pages/ResetPasswordPage'
-import { AppLoginPage } from '../pages/AppLoginPage'
+import { AppHandoffPage } from '../pages/AppHandoffPage'
+import { SignedOutPage } from '../pages/SignedOutPage'
 import { DashboardPage } from '../pages/DashboardPage'
 import { AccountSettingsPage } from '../features/account/AccountSettingsPage'
 import { ProfilesPage } from '../features/profiles/ProfilesPage'
@@ -22,10 +20,8 @@ const queryClient = new QueryClient({
 function AppRoutes() {
   return (
     <Routes>
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/signup" element={<SignupPage />} />
-      <Route path="/reset-password" element={<ResetPasswordPage />} />
-      <Route path="/app-login" element={<AppLoginPage />} />
+      <Route path="/app-handoff" element={<AppHandoffPage />} />
+      <Route path="/signed-out" element={<SignedOutPage />} />
       <Route path="/" element={<RequireAuth><PortalLayout><DashboardPage /></PortalLayout></RequireAuth>} />
       <Route path="/account" element={<RequireAuth><PortalLayout><AccountSettingsPage /></PortalLayout></RequireAuth>} />
       <Route path="/profiles" element={<RequireAuth><PortalLayout><ProfilesPage /></PortalLayout></RequireAuth>} />

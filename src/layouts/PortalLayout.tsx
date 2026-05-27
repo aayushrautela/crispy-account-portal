@@ -24,7 +24,7 @@ export function PortalLayout({ children }: { children: React.ReactNode }) {
           <div className="flex items-center gap-3">
             <span className="text-sm text-stone-500">{user?.email}</span>
             <button
-              onClick={() => { signOut(); navigate('/login') }}
+              onClick={async () => { await signOut(); navigate('/signed-out') }}
               className="text-sm text-stone-500 hover:text-stone-300 transition-colors"
             >
               Sign out

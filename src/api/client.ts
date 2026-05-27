@@ -121,13 +121,13 @@ export const api = {
       }).then(responseData),
   },
 
-  appLogin: {
-    createHandoffCode: (returnUri: string) =>
-      request<{ data: { code: unknown; plaintextCode: string; redirectUri: string | null } }>(
-        '/v1/auth/app-login/handoff-codes',
+  portalHandoff: {
+    exchange: (code: string) =>
+      request<{ data: { accessToken: string; refreshToken: string } }>(
+        '/v1/auth/portal-handoff/exchange',
         {
           method: 'POST',
-          body: JSON.stringify({ returnUri }),
+          body: JSON.stringify({ code }),
         },
       ).then(responseData),
   },
