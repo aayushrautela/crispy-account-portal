@@ -41,66 +41,66 @@ function responseData<T>(envelope: { data?: T; success?: boolean } & Record<stri
 export const api = {
   me: {
     get: () =>
-      request<{ data: { user: { id: string; email: string }; accountSettings: Record<string, unknown>; profiles: unknown[] } }>('/v1/me')
+      request<{ data: { user: { id: string; email: string }; accountSettings: Record<string, unknown>; profiles: unknown[] } }>('/v1/portal/me')
         .then(responseData),
   },
 
   account: {
     getSettings: () =>
-      request<{ data: { settings: Record<string, unknown> } }>('/v1/account/settings').then(responseData),
+      request<{ data: { settings: Record<string, unknown> } }>('/v1/portal/account/settings').then(responseData),
     patchSettings: (patch: Record<string, unknown>) =>
-      request<{ data: { settings: Record<string, unknown> } }>('/v1/account/settings', {
+      request<{ data: { settings: Record<string, unknown> } }>('/v1/portal/account/settings', {
         method: 'PATCH',
         body: JSON.stringify(patch),
       }).then(responseData),
     delete: () =>
-      request<{ data: { deleted: boolean } }>('/v1/account', { method: 'DELETE' }).then(responseData),
+      request<{ data: { deleted: boolean } }>('/v1/portal/account', { method: 'DELETE' }).then(responseData),
   },
 
   secrets: {
     ai: {
       get: () =>
-        request<{ data: { secret: { key: string; present: boolean; fingerprint: string } } }>('/v1/account/secrets/ai-api-key')
+        request<{ data: { secret: { key: string; present: boolean; fingerprint: string } } }>('/v1/portal/account/secrets/ai-api-key')
           .then(responseData),
       put: (value: string) =>
-        request<{ data: { secret: { key: string; present: boolean; fingerprint: string } } }>('/v1/account/secrets/ai-api-key', {
+        request<{ data: { secret: { key: string; present: boolean; fingerprint: string } } }>('/v1/portal/account/secrets/ai-api-key', {
           method: 'PUT',
           body: JSON.stringify({ value }),
         }).then(responseData),
       delete: () =>
-        request<{ data: { deleted: boolean } }>('/v1/account/secrets/ai-api-key', { method: 'DELETE' }).then(responseData),
+        request<{ data: { deleted: boolean } }>('/v1/portal/account/secrets/ai-api-key', { method: 'DELETE' }).then(responseData),
     },
     mdblist: {
       get: () =>
-        request<{ data: { secret: { key: string; present: boolean; fingerprint: string } } }>('/v1/account/secrets/mdblist-api-key')
+        request<{ data: { secret: { key: string; present: boolean; fingerprint: string } } }>('/v1/portal/account/secrets/mdblist-api-key')
           .then(responseData),
       put: (value: string) =>
-        request<{ data: { secret: { key: string; present: boolean; fingerprint: string } } }>('/v1/account/secrets/mdblist-api-key', {
+        request<{ data: { secret: { key: string; present: boolean; fingerprint: string } } }>('/v1/portal/account/secrets/mdblist-api-key', {
           method: 'PUT',
           body: JSON.stringify({ value }),
         }).then(responseData),
       delete: () =>
-        request<{ data: { deleted: boolean } }>('/v1/account/secrets/mdblist-api-key', { method: 'DELETE' }).then(responseData),
+        request<{ data: { deleted: boolean } }>('/v1/portal/account/secrets/mdblist-api-key', { method: 'DELETE' }).then(responseData),
     },
   },
 
   profiles: {
     list: () =>
-      request<{ data: { profiles: unknown[] } }>('/v1/profiles').then(responseData),
+      request<{ data: { profiles: unknown[] } }>('/v1/portal/profiles').then(responseData),
     create: (body: Record<string, unknown>) =>
-      request<{ data: { profile: unknown } }>('/v1/profiles', {
+      request<{ data: { profile: unknown } }>('/v1/portal/profiles', {
         method: 'POST',
         body: JSON.stringify(body),
       }).then(responseData),
     update: (profileId: string, body: Record<string, unknown>) =>
-      request<{ data: { profile: unknown } }>(`/v1/profiles/${profileId}`, {
+      request<{ data: { profile: unknown } }>(`/v1/portal/profiles/${profileId}`, {
         method: 'PATCH',
         body: JSON.stringify(body),
       }).then(responseData),
     getSettings: (profileId: string) =>
-      request<{ data: { settings: Record<string, unknown> } }>(`/v1/profiles/${profileId}/settings`).then(responseData),
+      request<{ data: { settings: Record<string, unknown> } }>(`/v1/portal/profiles/${profileId}/settings`).then(responseData),
     patchSettings: (profileId: string, patch: Record<string, unknown>) =>
-      request<{ data: { settings: Record<string, unknown> } }>(`/v1/profiles/${profileId}/settings`, {
+      request<{ data: { settings: Record<string, unknown> } }>(`/v1/portal/profiles/${profileId}/settings`, {
         method: 'PATCH',
         body: JSON.stringify(patch),
       }).then(responseData),
@@ -108,19 +108,19 @@ export const api = {
 
   providerImports: {
     listConnections: (profileId: string) =>
-      request<{ data: { providerStates: unknown[]; watchDataState: unknown } }>(`/v1/profiles/${profileId}/import-connections`)
+      request<{ data: { providerStates: unknown[]; watchDataState: unknown } }>(`/v1/portal/profiles/${profileId}/import-connections`)
         .then(responseData),
     startImport: (profileId: string, provider: string, action: string) =>
       request<{ data: { authUrl: string | null; nextAction: string; providerState: unknown; job: unknown | null } }>(
-        `/v1/profiles/${profileId}/imports/start`,
+        `/v1/portal/profiles/${profileId}/imports/start`,
         { method: 'POST', body: JSON.stringify({ provider, action }) },
       ).then(responseData),
     listJobs: (profileId: string) =>
-      request<{ data: { jobs: unknown[] } }>(`/v1/profiles/${profileId}/imports`).then(responseData),
+      request<{ data: { jobs: unknown[] } }>(`/v1/portal/profiles/${profileId}/imports`).then(responseData),
     getJob: (profileId: string, jobId: string) =>
-      request<{ data: { job: unknown } }>(`/v1/profiles/${profileId}/imports/${jobId}`).then(responseData),
+      request<{ data: { job: unknown } }>(`/v1/portal/profiles/${profileId}/imports/${jobId}`).then(responseData),
     disconnect: (profileId: string, provider: string) =>
-      request<{ data: { providerState: unknown } }>(`/v1/profiles/${profileId}/import-connections/${provider}`, {
+      request<{ data: { providerState: unknown } }>(`/v1/portal/profiles/${profileId}/import-connections/${provider}`, {
         method: 'DELETE',
       }).then(responseData),
   },
@@ -138,13 +138,13 @@ export const api = {
 
   pat: {
     list: () =>
-      request<{ data: { items: unknown[] } }>('/v1/auth/personal-access-tokens').then(responseData),
+      request<{ data: { items: unknown[] } }>('/v1/portal/api-keys').then(responseData),
     create: (body: { name: string; scopes?: string[]; expiresAt?: string | null }) =>
-      request<{ data: { token: { plaintext?: string; id: string; name: string } } }>('/v1/auth/personal-access-tokens', {
+      request<{ data: { token: { plaintext?: string; id: string; name: string } } }>('/v1/portal/api-keys', {
         method: 'POST',
         body: JSON.stringify(body),
       }).then(responseData),
     revoke: (tokenId: string) =>
-      request<{ data: { token: unknown } }>(`/v1/auth/personal-access-tokens/${tokenId}`, { method: 'DELETE' }).then(responseData),
+      request<{ data: { token: unknown } }>(`/v1/portal/api-keys/${tokenId}`, { method: 'DELETE' }).then(responseData),
   },
 }
