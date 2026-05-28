@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "@heroui/styles";
 @plugin './hero.ts';
 @source "../node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}";
 @custom-variant dark (&:is(.dark *));
@@ -20,8 +21,6 @@
 }
 
 body {
-  background-color: var(--color-m3-bg);
-  color: #e3e3e3;
   font-family: var(--font-sans);
 }
 
