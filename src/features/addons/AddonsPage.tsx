@@ -97,11 +97,11 @@ export function AddonsPage() {
 
           {/* Addons List */}
           {addons.length === 0 ? (
-            <Card variant="outlined" sx={{ borderRadius: 4, py: 6, textAlign: 'center' }}>
+            <Card variant="outlined" sx={{ py: 6, textAlign: 'center' }}>
               <Typography variant="body2" color="text.secondary">No add-ons installed yet.</Typography>
             </Card>
           ) : addons.length <= INITIAL_SHOW ? (
-            <Card variant="outlined" sx={{ borderRadius: 4 }}>
+            <Card variant="outlined">
               <List disablePadding>
                 {addons.map((addon, i) => (
                   <AddonRow key={i} addon={addon} index={i} onToggle={handleToggle} onRemove={handleRemove} />
@@ -110,7 +110,7 @@ export function AddonsPage() {
             </Card>
           ) : (
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              <Card variant="outlined" sx={{ borderRadius: 4 }}>
+              <Card variant="outlined">
                 <List disablePadding>
                   {addons.slice(0, INITIAL_SHOW).map((addon, i) => (
                     <AddonRow key={i} addon={addon} index={i} onToggle={handleToggle} onRemove={handleRemove} />
@@ -118,7 +118,7 @@ export function AddonsPage() {
                 </List>
               </Card>
               
-              <Accordion variant="outlined" sx={{ borderRadius: '16px !important', '&:before': { display: 'none' } }}>
+              <Accordion variant="outlined" sx={{ '&:before': { display: 'none' } }}>
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <Typography sx={{ fontWeight: 500 }}>Show more</Typography>

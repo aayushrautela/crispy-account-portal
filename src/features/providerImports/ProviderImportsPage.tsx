@@ -132,7 +132,7 @@ function ProviderImportView({ profileId }: { profileId: string }) {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
       {/* Provider Connection Rows */}
-      <Card variant="outlined" sx={{ borderRadius: 4 }}>
+      <Card variant="outlined">
         <List disablePadding>
           {providerStates.map((ps) => {
             const isConnected = ps.connectionState === 'connected'
@@ -241,7 +241,7 @@ function ProviderImportView({ profileId }: { profileId: string }) {
 
       {/* Import History */}
       {jobs.length > 0 && (
-        <Accordion variant="outlined" sx={{ borderRadius: '16px !important', '&:before': { display: 'none' } }}>
+        <Accordion variant="outlined" sx={{ '&:before': { display: 'none' } }}>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <Typography sx={{ fontWeight: 500 }}>Import History</Typography>

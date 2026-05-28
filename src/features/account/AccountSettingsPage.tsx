@@ -29,7 +29,7 @@ export function AccountSettingsPage() {
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, pt: 2 }}>
       <Typography variant="h5" sx={{ fontWeight: 500 }}>Account</Typography>
 
-      <Card variant="outlined" sx={{ borderRadius: 4 }}>
+      <Card variant="outlined">
         <List disablePadding>
           <ApiKeyRow
             provider="openrouter"
@@ -48,7 +48,7 @@ export function AccountSettingsPage() {
         </List>
       </Card>
 
-      <Card variant="outlined" sx={{ borderRadius: 4, borderColor: 'error.main' }}>
+      <Card variant="outlined" sx={{ borderColor: 'error.main' }}>
         <List disablePadding>
           <DeleteAccountRow signOut={signOut} navigate={navigate} />
         </List>

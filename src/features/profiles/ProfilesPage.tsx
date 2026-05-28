@@ -58,7 +58,7 @@ export function ProfilesPage() {
           <CircularProgress />
         </Box>
       ) : (
-        <Card variant="outlined" sx={{ borderRadius: 4 }}>
+        <Card variant="outlined">
           <List disablePadding>
             {profiles.map((p, idx) => {
               const color = AVATAR_COLORS[idx % AVATAR_COLORS.length]
@@ -173,7 +173,7 @@ function ProfileFormModal({
   }
 
   return (
-    <Dialog open onClose={onClose} fullWidth maxWidth="sm" slotProps={{ paper: { sx: { borderRadius: 3 } } }}>
+    <Dialog open onClose={onClose} fullWidth maxWidth="sm">
       <form onSubmit={handleSubmit}>
         <DialogTitle>{profile ? 'Edit Profile' : 'New Profile'}</DialogTitle>
         <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
@@ -218,7 +218,7 @@ function ProfileFormModal({
                 <Typography variant="caption" color="text.secondary">Filter mature content and enforce child ratings</Typography>
               </Box>
             }
-            sx={{ mt: 1, p: 1, borderRadius: 2, border: 1, borderColor: 'divider', '&:hover': { bgcolor: 'action.hover' } }}
+            sx={{ mt: 1, p: 1, border: 1, borderColor: 'divider', '&:hover': { bgcolor: 'action.hover' } }}
           />
           {error && <Typography variant="caption" color="error">{error}</Typography>}
         </DialogContent>

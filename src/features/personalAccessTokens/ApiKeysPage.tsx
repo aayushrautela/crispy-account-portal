@@ -63,12 +63,12 @@ export function ApiKeysPage() {
           <CircularProgress />
         </Box>
       ) : tokens.length === 0 ? (
-        <Card variant="outlined" sx={{ borderRadius: 4, py: 6, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+        <Card variant="outlined" sx={{ py: 6, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
           <KeyIcon sx={{ fontSize: 48, color: 'text.secondary', opacity: 0.5 }} />
           <Typography variant="body2" color="text.secondary">No API keys yet.</Typography>
         </Card>
       ) : tokens.length <= INITIAL_SHOW ? (
-        <Card variant="outlined" sx={{ borderRadius: 4 }}>
+        <Card variant="outlined">
           <List disablePadding>
             {tokens.map((t) => (
               <TokenRow key={t.id} token={t} onRevoke={() => setRevoking(t)} />
@@ -77,14 +77,14 @@ export function ApiKeysPage() {
         </Card>
       ) : (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <Card variant="outlined" sx={{ borderRadius: 4 }}>
+          <Card variant="outlined">
             <List disablePadding>
               {tokens.slice(0, INITIAL_SHOW).map((t) => (
                 <TokenRow key={t.id} token={t} onRevoke={() => setRevoking(t)} />
               ))}
             </List>
           </Card>
-          <Accordion variant="outlined" sx={{ borderRadius: '16px !important', '&:before': { display: 'none' } }}>
+          <Accordion variant="outlined" sx={{ '&:before': { display: 'none' } }}>
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Typography sx={{ fontWeight: 500 }}>Show more</Typography>
@@ -105,7 +105,7 @@ export function ApiKeysPage() {
       {creating && <CreateTokenModal onClose={() => setCreating(false)} />}
 
       {revoking && (
-        <Dialog open onClose={() => setRevoking(null)} slotProps={{ paper: { sx: { borderRadius: 3 } } }}>
+        <Dialog open onClose={() => setRevoking(null)}>
           <DialogTitle>Revoke API Key</DialogTitle>
           <DialogContent>
             <Typography variant="body2" color="text.secondary">
@@ -183,16 +183,16 @@ function CreateTokenModal({ onClose }: { onClose: () => void }) {
   }
 
   return (
-    <Dialog open onClose={plaintext ? undefined : onClose} fullWidth maxWidth="sm" slotProps={{ paper: { sx: { borderRadius: 3 } } }}>
+    <Dialog open onClose={plaintext ? undefined : onClose} fullWidth maxWidth="sm">
       {plaintext ? (
         <>
           <DialogTitle>API Key Created</DialogTitle>
           <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <Box sx={{ p: 2, bgcolor: 'warning.main', color: 'warning.contrastText', borderRadius: 2, opacity: 0.9 }}>
+            <Box sx={{ p: 2, bgcolor: 'warning.main', color: 'warning.contrastText', opacity: 0.9 }}>
               <Typography variant="overline" sx={{ fontWeight: 'bold' }}>Copy now</Typography>
               <Typography variant="body2">This token won't be shown again.</Typography>
             </Box>
-            <Box sx={{ p: 2, bgcolor: 'background.default', border: 1, borderColor: 'divider', borderRadius: 2, fontFamily: 'monospace', wordBreak: 'break-all', userSelect: 'all', color: 'primary.main' }}>
+            <Box sx={{ p: 2, bgcolor: 'background.default', border: 1, borderColor: 'divider', fontFamily: 'monospace', wordBreak: 'break-all', userSelect: 'all', color: 'primary.main' }}>
               {plaintext}
             </Box>
           </DialogContent>

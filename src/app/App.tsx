@@ -38,7 +38,7 @@ const darkTheme = createTheme({
     fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
   },
   shape: {
-    borderRadius: 16,
+    borderRadius: 8,
   },
 })
 

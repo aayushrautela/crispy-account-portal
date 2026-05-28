@@ -95,7 +95,7 @@ export function DashboardPage() {
       </Box>
 
       {/* Account group */}
-      <Card variant="outlined" sx={{ borderRadius: 4 }}>
+      <Card variant="outlined">
         <List disablePadding>
           <Row
             icon={<PersonIcon />}
@@ -115,7 +115,7 @@ export function DashboardPage() {
       </Card>
 
       {/* Data group */}
-      <Card variant="outlined" sx={{ borderRadius: 4 }}>
+      <Card variant="outlined">
         <List disablePadding>
           <Row
             icon={<GroupIcon />}
@@ -135,7 +135,7 @@ export function DashboardPage() {
       </Card>
 
       {/* Extensions group */}
-      <Card variant="outlined" sx={{ borderRadius: 4 }}>
+      <Card variant="outlined">
         <List disablePadding>
           <Row
             icon={<ExtensionIcon />}
