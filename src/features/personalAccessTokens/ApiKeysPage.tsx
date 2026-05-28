@@ -1,13 +1,31 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { api } from '../../api/client'
-import { Card } from '../../components/Card'
-import { Button } from '../../components/Button'
-import { Input } from '../../components/Input'
-import { Modal } from '../../components/Modal'
-import { Spinner } from '../../components/Spinner'
-import { ExpandableSection } from '../../components/ExpandableSection'
 import { useState } from 'react'
 import type { PatToken } from '../../api/types'
+import {
+  Box,
+  Typography,
+  Button,
+  Card,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Avatar,
+  Chip,
+  CircularProgress,
+  TextField,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails
+} from '@mui/material'
+import SecurityIcon from '@mui/icons-material/Security'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import KeyIcon from '@mui/icons-material/Key'
 
 const INITIAL_SHOW = 4
 
@@ -32,104 +50,108 @@ export function ApiKeysPage() {
   })
 
   return (
-    <div className="flex flex-col gap-6 pt-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold tracking-wide font-display text-stone-100">API Keys</h1>
-        <Button onClick={() => setCreating(true)} variant="primary" size="sm">
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, pt: 2 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Typography variant="h5" sx={{ fontWeight: 500 }}>API Keys</Typography>
+        <Button onClick={() => setCreating(true)} variant="contained" size="small">
           Create Key
         </Button>
-      </div>
+      </Box>
 
       {isLoading ? (
-        <Spinner />
+        <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+          <CircularProgress />
+        </Box>
       ) : tokens.length === 0 ? (
-        <Card className="text-center py-10">
-          <div className="flex flex-col items-center gap-3">
-            <svg className="w-8 h-8 text-stone-600" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" />
-            </svg>
-            <p className="text-sm text-stone-500 font-sans">No API keys yet.</p>
-          </div>
+        <Card variant="outlined" sx={{ borderRadius: 4, py: 6, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+          <KeyIcon sx={{ fontSize: 48, color: 'text.secondary', opacity: 0.5 }} />
+          <Typography variant="body2" color="text.secondary">No API keys yet.</Typography>
         </Card>
       ) : tokens.length <= INITIAL_SHOW ? (
-        <Card noPadding>
-          <div className="py-1">
+        <Card variant="outlined" sx={{ borderRadius: 4 }}>
+          <List disablePadding>
             {tokens.map((t) => (
               <TokenRow key={t.id} token={t} onRevoke={() => setRevoking(t)} />
             ))}
-          </div>
+          </List>
         </Card>
       ) : (
-        <>
-          <Card noPadding>
-            <div className="py-1">
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <Card variant="outlined" sx={{ borderRadius: 4 }}>
+            <List disablePadding>
               {tokens.slice(0, INITIAL_SHOW).map((t) => (
                 <TokenRow key={t.id} token={t} onRevoke={() => setRevoking(t)} />
               ))}
-            </div>
+            </List>
           </Card>
-          <ExpandableSection title="Show more" count={tokens.length - INITIAL_SHOW}>
-            <Card noPadding>
-              <div className="py-1">
+          <Accordion variant="outlined" sx={{ borderRadius: '16px !important', '&:before': { display: 'none' } }}>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Typography sx={{ fontWeight: 500 }}>Show more</Typography>
+                <Chip label={(tokens.length - INITIAL_SHOW).toString()} size="small" sx={{ height: 20, fontSize: '0.7rem' }} />
+              </Box>
+            </AccordionSummary>
+            <AccordionDetails sx={{ p: 0 }}>
+              <List disablePadding>
                 {tokens.slice(INITIAL_SHOW).map((t) => (
                   <TokenRow key={t.id} token={t} onRevoke={() => setRevoking(t)} />
                 ))}
-              </div>
-            </Card>
-          </ExpandableSection>
-        </>
+              </List>
+            </AccordionDetails>
+          </Accordion>
+        </Box>
       )}
 
       {creating && <CreateTokenModal onClose={() => setCreating(false)} />}
 
       {revoking && (
-        <Modal title="Revoke API Key" onClose={() => setRevoking(null)} open>
-          <div className="flex flex-col gap-4">
-            <p className="text-sm text-stone-300 font-sans">
-              Revoke <strong className="text-stone-100">{revoking.name}</strong>? This cannot be undone.
-            </p>
-            <div className="flex gap-3 justify-end">
-              <Button variant="secondary" onClick={() => setRevoking(null)}>
-                Cancel
-              </Button>
-              <Button
-                variant="danger"
-                loading={revokeMut.isPending}
-                onClick={() => revokeMut.mutate(revoking.id)}
-              >
-                Revoke
-              </Button>
-            </div>
-          </div>
-        </Modal>
+        <Dialog open onClose={() => setRevoking(null)} PaperProps={{ sx: { borderRadius: 3 } }}>
+          <DialogTitle>Revoke API Key</DialogTitle>
+          <DialogContent>
+            <Typography variant="body2" color="text.secondary">
+              Revoke <Typography component="span" fontWeight="500" color="text.primary">{revoking.name}</Typography>? This cannot be undone.
+            </Typography>
+          </DialogContent>
+          <DialogActions sx={{ p: 3, pt: 1 }}>
+            <Button onClick={() => setRevoking(null)} color="inherit">Cancel</Button>
+            <Button onClick={() => revokeMut.mutate(revoking.id)} variant="contained" color="error" disabled={revokeMut.isPending}>
+              Revoke
+            </Button>
+          </DialogActions>
+        </Dialog>
       )}
-    </div>
+    </Box>
   )
 }
 
 function TokenRow({ token, onRevoke }: { token: PatToken; onRevoke: () => void }) {
   return (
-    <div className="flex items-center gap-4 px-5 py-3.5 hover:bg-m3-hover/30 transition-colors">
-      <div className="h-10 w-10 shrink-0 rounded-full flex items-center justify-center bg-m3-blue/10">
-        <svg className="w-5 h-5 text-m3-blue" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" />
-        </svg>
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-stone-100 font-sans truncate">{token.name}</p>
-        <p className="text-xs text-stone-400 font-sans mt-0.5">
-          Created {new Date(token.createdAt).toLocaleDateString()}
-          {token.lastUsedAt ? (
-            <span className="ml-1.5">· Last used {new Date(token.lastUsedAt).toLocaleDateString()}</span>
-          ) : (
-            <span className="ml-1.5">· Never used</span>
-          )}
-        </p>
-      </div>
-      <Button variant="secondary" size="sm" onClick={onRevoke}>
-        Revoke
-      </Button>
-    </div>
+    <ListItem sx={{ py: 2, px: 3, display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'flex-start', sm: 'center' }, gap: 2 }}>
+      <ListItemIcon sx={{ minWidth: 0, mr: 2 }}>
+        <Avatar sx={{ bgcolor: 'info.main', width: 40, height: 40, color: '#fff' }}>
+          <SecurityIcon />
+        </Avatar>
+      </ListItemIcon>
+      
+      <ListItemText
+        primary={<Typography sx={{ fontWeight: 500 }}>{token.name}</Typography>}
+        secondary={
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+            Created {new Date(token.createdAt).toLocaleDateString()}
+            <Box component="span" sx={{ ml: 1 }}>
+              · {token.lastUsedAt ? `Last used ${new Date(token.lastUsedAt).toLocaleDateString()}` : 'Never used'}
+            </Box>
+          </Typography>
+        }
+        sx={{ flex: 1, m: 0 }}
+      />
+
+      <Box sx={{ flexShrink: 0, mt: { xs: 1, sm: 0 } }}>
+        <Button variant="outlined" size="small" onClick={onRevoke} color="inherit">
+          Revoke
+        </Button>
+      </Box>
+    </ListItem>
   )
 }
 
@@ -161,24 +183,22 @@ function CreateTokenModal({ onClose }: { onClose: () => void }) {
   }
 
   return (
-    <Modal title="Create API Key" onClose={onClose} open>
+    <Dialog open onClose={plaintext ? undefined : onClose} fullWidth maxWidth="sm" PaperProps={{ sx: { borderRadius: 3 } }}>
       {plaintext ? (
-        <div className="flex flex-col gap-4">
-          <div className="p-3 bg-m3-orange/10 border border-m3-orange/20 rounded-2xl flex flex-col gap-1">
-            <p className="text-xs font-semibold text-m3-orange uppercase tracking-wider font-sans">
-              Copy now
-            </p>
-            <p className="text-xs text-stone-300 font-sans">
-              This token won't be shown again.
-            </p>
-          </div>
-
-          <div className="rounded-2xl bg-m3-bg border border-m3-border/30 p-4 text-xs font-mono break-all select-all text-[#a8c7fa] tracking-wider leading-relaxed">
-            {plaintext}
-          </div>
-
-          <div className="flex justify-end">
-            <Button
+        <>
+          <DialogTitle>API Key Created</DialogTitle>
+          <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Box sx={{ p: 2, bgcolor: 'warning.main', color: 'warning.contrastText', borderRadius: 2, opacity: 0.9 }}>
+              <Typography variant="overline" sx={{ fontWeight: 'bold' }}>Copy now</Typography>
+              <Typography variant="body2">This token won't be shown again.</Typography>
+            </Box>
+            <Box sx={{ p: 2, bgcolor: 'background.default', border: 1, borderColor: 'divider', borderRadius: 2, fontFamily: 'monospace', wordBreak: 'break-all', userSelect: 'all', color: 'primary.main' }}>
+              {plaintext}
+            </Box>
+          </DialogContent>
+          <DialogActions sx={{ p: 3, pt: 1 }}>
+            <Button 
+              variant="contained"
               onClick={() => {
                 queryClient.invalidateQueries({ queryKey: ['pat'] })
                 onClose()
@@ -186,30 +206,32 @@ function CreateTokenModal({ onClose }: { onClose: () => void }) {
             >
               Done
             </Button>
-          </div>
-        </div>
+          </DialogActions>
+        </>
       ) : (
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <Input
-            label="Token Name"
-            value={name}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
-            required
-            placeholder="e.g. desktop-app, cron-import"
-          />
-
-          {error && <p className="text-xs text-red-400 font-sans">{error}</p>}
-
-          <div className="flex gap-3 justify-end">
-            <Button variant="secondary" type="button" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button type="submit" loading={createMut.isPending}>
+        <form onSubmit={handleSubmit}>
+          <DialogTitle>Create API Key</DialogTitle>
+          <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
+            <TextField
+              autoFocus
+              label="Token Name"
+              fullWidth
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              placeholder="e.g. desktop-app, cron-import"
+              margin="dense"
+            />
+            {error && <Typography variant="caption" color="error">{error}</Typography>}
+          </DialogContent>
+          <DialogActions sx={{ p: 3, pt: 0 }}>
+            <Button onClick={onClose} color="inherit">Cancel</Button>
+            <Button type="submit" variant="contained" disabled={createMut.isPending}>
               Create
             </Button>
-          </div>
+          </DialogActions>
         </form>
       )}
-    </Modal>
+    </Dialog>
   )
 }

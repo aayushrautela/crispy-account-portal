@@ -1,11 +1,24 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { api } from '../../api/client'
-import { Card } from '../../components/Card'
-import { Button } from '../../components/Button'
-import { Spinner } from '../../components/Spinner'
-import { ExpandableSection } from '../../components/ExpandableSection'
 import { useState } from 'react'
 import type { ProviderState, ImportJob } from '../../api/types'
+import {
+  Box,
+  Typography,
+  Button,
+  Card,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Avatar,
+  Chip,
+  CircularProgress,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails
+} from '@mui/material'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 
 export function ProviderImportsPage() {
   const [selectedProfileId, setSelectedProfileId] = useState<string | null>(null)
@@ -21,33 +34,30 @@ export function ProviderImportsPage() {
   const selectedId = selectedProfileId ?? (profiles[0]?.id ?? null)
 
   return (
-    <div className="flex flex-col gap-6 pt-4">
-      <h1 className="text-2xl font-semibold tracking-wide font-display text-stone-100">Imports</h1>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, pt: 2 }}>
+      <Typography variant="h5" sx={{ fontWeight: 500 }}>Imports</Typography>
 
       {/* Profile Filter Chips */}
       {profiles.length > 0 && (
-        <div className="flex gap-2 flex-wrap">
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
           {profiles.map((p) => {
             const isActive = selectedId === p.id
             return (
-              <button
+              <Chip
                 key={p.id}
+                label={p.name}
                 onClick={() => setSelectedProfileId(p.id)}
-                className={`rounded-full px-4 py-1.5 text-xs font-medium transition-colors ${
-                  isActive
-                    ? 'bg-[#a8c7fa] text-[#062e6f]'
-                    : 'bg-m3-surface text-stone-400 border border-m3-border/20 hover:text-stone-200'
-                }`}
-              >
-                {p.name}
-              </button>
+                color={isActive ? 'primary' : 'default'}
+                variant={isActive ? 'filled' : 'outlined'}
+                sx={{ fontWeight: 500 }}
+              />
             )
           })}
-        </div>
+        </Box>
       )}
 
       {selectedId && <ProviderImportView profileId={selectedId} />}
-    </div>
+    </Box>
   )
 }
 
@@ -87,7 +97,13 @@ function ProviderImportView({ profileId }: { profileId: string }) {
     },
   })
 
-  if (isLoading) return <Spinner />
+  if (isLoading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+        <CircularProgress />
+      </Box>
+    )
+  }
 
   const providerStates: ProviderState[] = Array.isArray((data as any)?.providerStates)
     ? (data as any).providerStates
@@ -114,11 +130,10 @@ function ProviderImportView({ profileId }: { profileId: string }) {
   }
 
   return (
-    <div className="flex flex-col gap-6">
-
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
       {/* Provider Connection Rows */}
-      <Card noPadding>
-        <div className="py-1">
+      <Card variant="outlined" sx={{ borderRadius: 4 }}>
+        <List disablePadding>
           {providerStates.map((ps) => {
             const isConnected = ps.connectionState === 'connected'
             const isPending = ps.connectionState === 'pending_authorization'
@@ -132,141 +147,147 @@ function ProviderImportView({ profileId }: { profileId: string }) {
             }
 
             return (
-              <div
+              <ListItem
                 key={ps.provider}
-                className="px-5 py-3.5 hover:bg-m3-hover/30 transition-colors"
+                sx={{ py: 2, px: 3, display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'flex-start', sm: 'center' }, gap: 2 }}
               >
-                <div className="flex items-center gap-4">
-                  <div
-                    className="h-10 w-10 rounded-full flex items-center justify-center shrink-0"
-                    style={{ backgroundColor: providerStyle.bg }}
-                  >
+                <ListItemIcon sx={{ minWidth: 0, mr: 2 }}>
+                  <Avatar sx={{ bgcolor: providerStyle.bg, width: 40, height: 40 }}>
                     {providerStyle.icon}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-sm font-medium capitalize text-stone-100 font-sans">
+                  </Avatar>
+                </ListItemIcon>
+                
+                <ListItemText
+                  primary={
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Typography sx={{ fontWeight: 500, textTransform: 'capitalize' }}>
                         {ps.provider}
-                      </h3>
-                      <span
-                        className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-                          isConnected
-                            ? 'bg-m3-green/10 text-m3-green'
-                            : isPending
-                            ? 'bg-m3-orange/10 text-m3-orange'
-                            : 'bg-stone-800 text-stone-500'
-                        }`}
-                      >
-                        {ps.connectionState?.replace('_', ' ') || 'disconnected'}
-                      </span>
-                    </div>
-                    <p className="text-xs text-stone-400 font-sans mt-0.5">
+                      </Typography>
+                      <Chip 
+                        label={ps.connectionState?.replace('_', ' ') || 'disconnected'} 
+                        size="small" 
+                        color={isConnected ? 'success' : isPending ? 'warning' : 'default'}
+                        variant={isConnected || isPending ? 'outlined' : 'filled'}
+                        sx={{ height: 20, fontSize: '0.65rem' }}
+                      />
+                    </Box>
+                  }
+                  secondary={
+                    <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
                       {ps.statusLabel}
                       {ps.externalUsername && (
-                        <span className="ml-1.5">as <strong className="text-stone-300 font-medium">{ps.externalUsername}</strong></span>
+                        <Box component="span" sx={{ ml: 1 }}>
+                          as <Typography component="span" fontWeight="500" color="text.primary">{ps.externalUsername}</Typography>
+                        </Box>
                       )}
-                    </p>
-                  </div>
-                  <div className="flex gap-2 shrink-0">
-                    {ps.canImport && (
-                      <Button
-                        variant="primary"
-                        size="sm"
-                        loading={connectMut.isPending}
-                        onClick={() => connectMut.mutate({ provider: ps.provider, action: 'import' })}
-                      >
-                        Import
-                      </Button>
-                    )}
-                    {ps.canReconnect && (
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        loading={connectMut.isPending}
-                        onClick={() => connectMut.mutate({ provider: ps.provider, action: 'reconnect' })}
-                      >
-                        Reconnect
-                      </Button>
-                    )}
-                    {ps.primaryAction === 'connect' && (
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        loading={connectMut.isPending}
-                        onClick={() => connectMut.mutate({ provider: ps.provider, action: 'connect' })}
-                      >
-                        Connect
-                      </Button>
-                    )}
-                    {ps.canDisconnect && (
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        loading={disconnectMut.isPending}
-                        onClick={() => disconnectMut.mutate(ps.provider)}
-                      >
-                        Disconnect
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </div>
+                    </Typography>
+                  }
+                  sx={{ flex: 1, m: 0 }}
+                />
+
+                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: { xs: 1, sm: 0 } }}>
+                  {ps.canImport && (
+                    <Button
+                      variant="contained"
+                      size="small"
+                      disabled={connectMut.isPending}
+                      onClick={() => connectMut.mutate({ provider: ps.provider, action: 'import' })}
+                    >
+                      Import
+                    </Button>
+                  )}
+                  {ps.canReconnect && (
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      disabled={connectMut.isPending}
+                      onClick={() => connectMut.mutate({ provider: ps.provider, action: 'reconnect' })}
+                    >
+                      Reconnect
+                    </Button>
+                  )}
+                  {ps.primaryAction === 'connect' && (
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      disabled={connectMut.isPending}
+                      onClick={() => connectMut.mutate({ provider: ps.provider, action: 'connect' })}
+                    >
+                      Connect
+                    </Button>
+                  )}
+                  {ps.canDisconnect && (
+                    <Button
+                      variant="text"
+                      color="error"
+                      size="small"
+                      disabled={disconnectMut.isPending}
+                      onClick={() => disconnectMut.mutate(ps.provider)}
+                    >
+                      Disconnect
+                    </Button>
+                  )}
+                </Box>
+              </ListItem>
             )
           })}
           {providerStates.length === 0 && (
-            <div className="p-8 text-center">
-              <p className="text-sm text-stone-500 font-sans">No providers available.</p>
-            </div>
+            <Box sx={{ p: 4, textAlign: 'center' }}>
+              <Typography variant="body2" color="text.secondary">No providers available.</Typography>
+            </Box>
           )}
-        </div>
+        </List>
       </Card>
 
-      {/* Import History — collapsible */}
+      {/* Import History */}
       {jobs.length > 0 && (
-        <ExpandableSection title="Import History" count={jobs.length}>
-          <Card noPadding>
-            <div className="py-1">
+        <Accordion variant="outlined" sx={{ borderRadius: '16px !important', '&:before': { display: 'none' } }}>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Typography sx={{ fontWeight: 500 }}>Import History</Typography>
+              <Chip label={jobs.length.toString()} size="small" sx={{ height: 20, fontSize: '0.7rem' }} />
+            </Box>
+          </AccordionSummary>
+          <AccordionDetails sx={{ p: 0 }}>
+            <List disablePadding>
               {jobs.slice(0, 20).map((job) => {
                 const isSuccess = job.status === 'succeeded'
                 const isFailed = job.status === 'failed'
                 const isRunning = job.status === 'running'
 
                 return (
-                  <div
-                    key={job.id}
-                    className="flex items-center gap-4 px-5 py-3"
-                  >
-                    <span
-                      className={`h-2.5 w-2.5 rounded-full shrink-0 ${
-                        isSuccess
-                          ? 'bg-m3-green'
-                          : isFailed
-                          ? 'bg-red-400'
-                          : isRunning
-                          ? 'bg-m3-blue animate-pulse'
-                          : 'bg-stone-600'
-                      }`}
+                  <ListItem key={job.id} sx={{ px: 3, py: 1.5 }}>
+                    <ListItemIcon sx={{ minWidth: 32 }}>
+                      <Box 
+                        sx={{ 
+                          width: 10, 
+                          height: 10, 
+                          borderRadius: '50%', 
+                          bgcolor: isSuccess ? 'success.main' : isFailed ? 'error.main' : isRunning ? 'primary.main' : 'text.disabled',
+                          animation: isRunning ? 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' : 'none',
+                          '@keyframes pulse': {
+                            '0%, 100%': { opacity: 1 },
+                            '50%': { opacity: .5 }
+                          }
+                        }} 
+                      />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={<Typography sx={{ fontSize: '0.875rem' }}>{job.provider} sync</Typography>}
+                      secondary={
+                        job.errorMessage ? <Typography variant="caption" color="error">{job.errorMessage}</Typography> : null
+                      }
                     />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm text-stone-100 font-sans truncate">
-                        {job.provider} sync
-                      </p>
-                      {job.errorMessage && (
-                        <p className="text-xs text-red-400 font-sans truncate mt-0.5">
-                          {job.errorMessage}
-                        </p>
-                      )}
-                    </div>
-                    <span className="text-xs text-stone-400 font-sans shrink-0 capitalize">
+                    <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'capitalize' }}>
                       {job.status}
-                    </span>
-                  </div>
+                    </Typography>
+                  </ListItem>
                 )
               })}
-            </div>
-          </Card>
-        </ExpandableSection>
+            </List>
+          </AccordionDetails>
+        </Accordion>
       )}
-    </div>
+    </Box>
   )
 }

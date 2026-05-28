@@ -1,54 +1,59 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { api } from '../../api/client'
-import { Card } from '../../components/Card'
-import { Button } from '../../components/Button'
-import { Input } from '../../components/Input'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../auth/useSession'
-import { cn } from '../../lib/utils'
+import { 
+  Box, 
+  Card, 
+  List, 
+  ListItemButton, 
+  ListItemIcon, 
+  ListItemText, 
+  Avatar, 
+  Typography, 
+  Collapse,
+  TextField,
+  Button
+} from '@mui/material'
+import VpnKeyIcon from '@mui/icons-material/VpnKey'
+import MovieIcon from '@mui/icons-material/Movie'
+import DeleteIcon from '@mui/icons-material/Delete'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 
 export function AccountSettingsPage() {
   const { signOut } = useAuth()
   const navigate = useNavigate()
 
   return (
-    <div className="flex flex-col gap-6 pt-4">
-      <h1 className="text-2xl font-semibold tracking-wide font-display text-stone-100">Account</h1>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, pt: 2 }}>
+      <Typography variant="h5" sx={{ fontWeight: 500 }}>Account</Typography>
 
-      <Card noPadding>
-        <div className="py-1">
+      <Card variant="outlined" sx={{ borderRadius: 4 }}>
+        <List disablePadding>
           <ApiKeyRow
             provider="openrouter"
             title="OpenRouter API Key"
             subtitle="Routes LLM requests via secure endpoints"
             iconBg="#1a73e8"
-            icon={
-              <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14zM5 15h14v2H5zm0-4h14v2H5zm0-4h14v2H5z" />
-              </svg>
-            }
+            icon={<VpnKeyIcon />}
           />
           <ApiKeyRow
             provider="mdblist"
             title="MDBList API Key"
             subtitle="Movie metadata, ratings, and filters"
             iconBg="#e37400"
-            icon={
-              <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z" />
-              </svg>
-            }
+            icon={<MovieIcon />}
           />
-        </div>
+        </List>
       </Card>
 
-      <Card noPadding className="border border-red-500/10">
-        <div className="py-1">
+      <Card variant="outlined" sx={{ borderRadius: 4, borderColor: 'error.main' }}>
+        <List disablePadding>
           <DeleteAccountRow signOut={signOut} navigate={navigate} />
-        </div>
+        </List>
       </Card>
-    </div>
+    </Box>
   )
 }
 
@@ -92,61 +97,53 @@ function ApiKeyRow({
 
   return (
     <>
-      <button
-        onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center gap-4 px-5 py-3.5 hover:bg-m3-hover/50 transition-colors text-left group"
-      >
-        <div
-          className="h-10 w-10 rounded-full flex items-center justify-center shrink-0"
-          style={{ backgroundColor: iconBg }}
-        >
-          {icon}
-        </div>
-        <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-medium text-stone-100 font-sans">{title}</h3>
-          <p className="text-xs text-stone-400 font-sans mt-0.5">{statusText}</p>
-        </div>
-        <svg
-          className={cn(
-            'w-4 h-4 text-stone-500 shrink-0 transition-transform duration-200',
-            expanded && 'rotate-180'
-          )}
-          fill="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path d="M7 10l5 5 5-5z" />
-        </svg>
-      </button>
+      <ListItemButton onClick={() => setExpanded(!expanded)} sx={{ py: 2, px: 3 }}>
+        <ListItemIcon>
+          <Avatar sx={{ bgcolor: iconBg, width: 40, height: 40, color: '#fff' }}>
+            {icon}
+          </Avatar>
+        </ListItemIcon>
+        <ListItemText 
+          primary={<Typography sx={{ fontWeight: 500, color: 'text.primary' }}>{title}</Typography>}
+          secondary={<Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>{statusText}</Typography>}
+        />
+        <ExpandMoreIcon sx={{ transform: expanded ? 'rotate(180deg)' : 'none', transition: '0.2s' }} />
+      </ListItemButton>
 
-      <div
-        className={cn(
-          'grid transition-all duration-200 ease-in-out',
-          expanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
-        )}
-      >
-        <div className="overflow-hidden">
-          <div className="px-5 pb-4 flex flex-col gap-3">
-            {secret?.present && (
-              <div className="flex justify-end">
-                <Button variant="secondary" size="sm" loading={delMut.isPending} onClick={() => delMut.mutate()}>
-                  Remove
-                </Button>
-              </div>
-            )}
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Input
-                placeholder={provider === 'ai' ? 'sk-or-...' : 'Enter MDBList key'}
-                value={value}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
-                className="flex-1 font-mono text-xs"
-              />
-              <Button loading={putMut.isPending} disabled={!value.trim()} onClick={() => value.trim() && putMut.mutate(value.trim())} className="sm:w-auto">
-                Save
+      <Collapse in={expanded} timeout="auto" unmountOnExit>
+        <Box sx={{ px: 3, pb: 3, display: 'flex', flexDirection: 'column', gap: 2 }}>
+          {secret?.present && (
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <Button 
+                color="error" 
+                size="small" 
+                disabled={delMut.isPending} 
+                onClick={() => delMut.mutate()}
+              >
+                Remove
               </Button>
-            </div>
-          </div>
-        </div>
-      </div>
+            </Box>
+          )}
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
+            <TextField
+              size="small"
+              fullWidth
+              placeholder={provider === 'openrouter' ? 'sk-or-...' : 'Enter MDBList key'}
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              InputProps={{ sx: { fontFamily: 'monospace' } }}
+            />
+            <Button 
+              variant="contained" 
+              disabled={!value.trim() || putMut.isPending} 
+              onClick={() => value.trim() && putMut.mutate(value.trim())}
+              sx={{ minWidth: 100 }}
+            >
+              Save
+            </Button>
+          </Box>
+        </Box>
+      </Collapse>
     </>
   )
 }
@@ -173,70 +170,53 @@ function DeleteAccountRow({
 
   return (
     <>
-      <button
-        onClick={() => setConfirming(!confirming)}
-        className="w-full flex items-center gap-4 px-5 py-3.5 hover:bg-m3-hover/50 transition-colors text-left group"
-      >
-        <div className="h-10 w-10 rounded-full flex items-center justify-center shrink-0 bg-red-500/10">
-          <svg className="w-5 h-5 text-red-400" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
-          </svg>
-        </div>
-        <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-medium text-red-400 font-sans">Delete account</h3>
-          <p className="text-xs text-stone-400 font-sans mt-0.5">Permanently delete your account and all data</p>
-        </div>
-        <svg
-          className={cn(
-            'w-4 h-4 text-stone-500 shrink-0 transition-transform duration-200',
-            confirming && 'rotate-180'
-          )}
-          fill="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path d="M7 10l5 5 5-5z" />
-        </svg>
-      </button>
+      <ListItemButton onClick={() => setConfirming(!confirming)} sx={{ py: 2, px: 3 }}>
+        <ListItemIcon>
+          <Avatar sx={{ bgcolor: 'error.main', width: 40, height: 40, color: '#fff' }}>
+            <DeleteIcon />
+          </Avatar>
+        </ListItemIcon>
+        <ListItemText 
+          primary={<Typography sx={{ fontWeight: 500, color: 'error.main' }}>Delete account</Typography>}
+          secondary={<Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>Permanently delete your account and all data</Typography>}
+        />
+        <ExpandMoreIcon sx={{ transform: confirming ? 'rotate(180deg)' : 'none', transition: '0.2s' }} />
+      </ListItemButton>
 
-      <div
-        className={cn(
-          'grid transition-all duration-200 ease-in-out',
-          confirming ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
-        )}
-      >
-        <div className="overflow-hidden">
-          <div className="px-5 pb-4 flex flex-col gap-3">
-            <p className="text-xs text-stone-300 font-sans">
-              This is permanent. Type <strong className="text-red-400">DELETE</strong> to confirm.
-            </p>
-            <Input
-              value={confirmText}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setConfirmText(e.target.value)}
-              placeholder="DELETE"
-              className="font-mono text-xs uppercase"
-            />
-            <div className="flex gap-3">
-              <Button
-                variant="danger"
-                disabled={confirmText !== 'DELETE'}
-                loading={delMut.isPending}
-                onClick={() => delMut.mutate()}
-              >
-                Delete Permanently
-              </Button>
-              <Button
-                variant="secondary"
-                onClick={() => {
-                  setConfirming(false)
-                  setConfirmText('')
-                }}
-              >
-                Cancel
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
+      <Collapse in={confirming} timeout="auto" unmountOnExit>
+        <Box sx={{ px: 3, pb: 3, display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <Typography variant="body2" color="text.secondary">
+            This is permanent. Type <Typography component="span" color="error.main" fontWeight="bold">DELETE</Typography> to confirm.
+          </Typography>
+          <TextField
+            size="small"
+            value={confirmText}
+            onChange={(e) => setConfirmText(e.target.value)}
+            placeholder="DELETE"
+            InputProps={{ sx: { fontFamily: 'monospace' } }}
+          />
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            <Button
+              variant="contained"
+              color="error"
+              disabled={confirmText !== 'DELETE' || delMut.isPending}
+              onClick={() => delMut.mutate()}
+            >
+              Delete Permanently
+            </Button>
+            <Button
+              variant="outlined"
+              color="inherit"
+              onClick={() => {
+                setConfirming(false)
+                setConfirmText('')
+              }}
+            >
+              Cancel
+            </Button>
+          </Box>
+        </Box>
+      </Collapse>
     </>
   )
 }
