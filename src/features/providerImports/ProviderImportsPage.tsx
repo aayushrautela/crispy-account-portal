@@ -105,7 +105,7 @@ function ProviderImportView({ profileId }: { profileId: string }) {
       {/* Grouped Connection Tiles */}
       <Card noPadding>
         {providerStates.map((ps) => {
-          const isConnected = ps.connectionState === 'authorized'
+          const isConnected = ps.connectionState === 'connected'
           const isPending = ps.connectionState === 'pending_authorization'
           
           return (
