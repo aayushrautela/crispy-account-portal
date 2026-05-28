@@ -9,7 +9,7 @@ import {
   Input,
   Accordion,
 } from '@heroui/react'
-import ExtensionIcon from '@mui/icons-material/Extension'
+import { ExtensionIcon } from '../../icons'
 
 const INITIAL_SHOW = 4
 

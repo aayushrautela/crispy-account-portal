@@ -3,12 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
 import avatarImg from '../assets/avatar.png'
 import { Card, Spinner } from '@heroui/react'
-import PersonIcon from '@mui/icons-material/Person'
-import SecurityIcon from '@mui/icons-material/Security'
-import GroupIcon from '@mui/icons-material/Group'
-import SyncIcon from '@mui/icons-material/Sync'
-import ExtensionIcon from '@mui/icons-material/Extension'
-import ChevronRightIcon from '@mui/icons-material/ChevronRight'
+import { PersonIcon, SecurityIcon, GroupIcon, SyncIcon, ExtensionIcon, ChevronRightIcon } from '../icons'
 
 function Row({
   icon,

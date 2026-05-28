@@ -10,7 +10,7 @@ import {
   Modal,
   Input,
 } from '@heroui/react'
-import ChevronRightIcon from '@mui/icons-material/ChevronRight'
+import { ChevronRightIcon } from '../../icons'
 
 const AVATAR_COLORS = [
   { bg: 'bg-primary/15', text: 'text-primary' },

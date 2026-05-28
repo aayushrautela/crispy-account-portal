@@ -8,10 +8,7 @@ import {
   Button,
   Input
 } from '@heroui/react'
-import VpnKeyIcon from '@mui/icons-material/VpnKey'
-import MovieIcon from '@mui/icons-material/Movie'
-import DeleteIcon from '@mui/icons-material/Delete'
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import { VpnKeyIcon, MovieIcon, DeleteIcon, ExpandMoreIcon } from '../../icons'
 
 export function AccountSettingsPage() {
   const { signOut } = useAuth()

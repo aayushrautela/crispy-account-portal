@@ -12,7 +12,7 @@ import {
   Modal,
   Accordion,
 } from '@heroui/react'
-import KeyIcon from '@mui/icons-material/Key'
+import { KeyIcon } from '../../icons'
 
 const INITIAL_SHOW = 4
 

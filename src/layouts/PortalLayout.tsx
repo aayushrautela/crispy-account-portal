@@ -3,9 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/useSession'
 import avatarImg from '../assets/avatar.png'
 import { Button } from '@heroui/react'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import SearchIcon from '@mui/icons-material/Search'
-import LogoutIcon from '@mui/icons-material/Logout'
+import { ArrowBackIcon, SearchIcon, LogoutIcon } from '../icons'
 
 export function PortalLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation()
