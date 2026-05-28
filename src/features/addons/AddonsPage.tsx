@@ -54,7 +54,7 @@ export function AddonsPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6 pt-4">
+    <div className="flex flex-col gap-4 pt-4">
       <h1 className="text-2xl font-medium">Add-ons</h1>
 
       {isLoading ? (
@@ -62,7 +62,7 @@ export function AddonsPage() {
           <Spinner />
         </div>
       ) : (
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4">
           {/* Add-on Input */}
           <div className="flex flex-col gap-2">
             <div className="flex flex-col sm:flex-row gap-4">
@@ -115,7 +115,7 @@ export function AddonsPage() {
               <Accordion className="bg-content1 rounded-xl shadow-sm border border-default-200">
                 <Accordion.Item>
                   <Accordion.Heading>
-                    <Accordion.Trigger className="flex items-center gap-2 p-4">
+                    <Accordion.Trigger className="flex items-center gap-2 px-4 py-3">
                       <span className="font-medium">Show more</span>
                       <Chip size="sm" className="bg-default-100">{addons.length - INITIAL_SHOW}</Chip>
                     </Accordion.Trigger>
@@ -152,9 +152,9 @@ function AddonRow({
   const url = String(addon.manifestUrl ?? '')
 
   return (
-    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 px-6 py-4">
-      <div className="shrink-0 flex items-center justify-center w-10 h-10 rounded-full bg-warning text-white">
-        <ExtensionIcon />
+    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 px-4 py-3">
+      <div className="shrink-0 flex items-center justify-center w-9 h-9 rounded-full" style={{ backgroundColor: '#fef7e0', color: '#c5630c' }}>
+        <ExtensionIcon className="w-5 h-5" />
       </div>
       
       <div className="flex-1 min-w-0">
@@ -164,7 +164,7 @@ function AddonRow({
           </p>
           <Chip 
             size="sm" 
-            className={`h-5 text-[10px] ${isEnabled ? 'border border-default-200 bg-transparent text-success' : 'bg-default-100 text-default-500'}`}
+            className={`h-5 text-[10px] ${isEnabled ? 'bg-success/10 text-success' : 'bg-default-200/50 text-default-500'}`}
           >
             {isEnabled ? 'on' : 'off'}
           </Chip>
@@ -173,14 +173,14 @@ function AddonRow({
 
       <div className="flex gap-2 mt-2 sm:mt-0">
         <Button 
-          className="border border-default-200 bg-transparent text-default-700" 
+          className="bg-default-200/50 text-default-600" 
           size="sm" 
           onPress={() => onToggle(index)}
         >
           {isEnabled ? 'Disable' : 'Enable'}
         </Button>
         <Button 
-          className="border border-default-200 bg-transparent text-danger" 
+          className="bg-danger/10 text-danger" 
           size="sm" 
           onPress={() => onRemove(index)}
         >

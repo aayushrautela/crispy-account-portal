@@ -37,7 +37,7 @@ export function ApiKeysPage() {
   })
 
   return (
-    <div className="flex flex-col gap-6 pt-4">
+    <div className="flex flex-col gap-4 pt-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-medium">API Keys</h1>
         <Button className="bg-primary text-primary-foreground font-medium" onPress={() => setCreating(true)}>
@@ -80,7 +80,7 @@ export function ApiKeysPage() {
           <Accordion className="bg-content1 rounded-xl shadow-sm border border-default-200">
             <Accordion.Item>
               <Accordion.Heading>
-                <Accordion.Trigger className="flex items-center gap-2 p-4">
+                <Accordion.Trigger className="flex items-center gap-2 px-4 py-3">
                   <span className="font-medium">Show more</span>
                   <Chip size="sm" className="bg-default-100">{tokens.length - INITIAL_SHOW}</Chip>
                 </Accordion.Trigger>
@@ -110,7 +110,7 @@ export function ApiKeysPage() {
             </p>
           </Modal.Body>
           <Modal.Footer>
-            <Button className="bg-default-100" onPress={() => setRevoking(null)}>Cancel</Button>
+            <Button className="bg-default-200/50 text-default-600" onPress={() => setRevoking(null)}>Cancel</Button>
             <Button className="bg-danger text-danger-foreground" isDisabled={revokeMut.isPending} onPress={() => revoking && revokeMut.mutate(revoking.id)}>
               {revokeMut.isPending ? "Revoking..." : "Revoke"}
             </Button>
@@ -123,7 +123,7 @@ export function ApiKeysPage() {
 
 function TokenRow({ token, onRevoke }: { token: PatToken; onRevoke: () => void }) {
   return (
-    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 hover:bg-default-50 transition-colors">
+    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-4 hover:bg-default-50 transition-colors">
       <Avatar className="shrink-0 bg-primary/10 text-primary" />
       
       <div className="flex-1">
@@ -135,7 +135,7 @@ function TokenRow({ token, onRevoke }: { token: PatToken; onRevoke: () => void }
         </p>
       </div>
 
-      <Button className="border border-default-200 bg-transparent text-default-700" size="sm" onPress={onRevoke}>
+      <Button className="bg-default-200/50 text-default-600" size="sm" onPress={onRevoke}>
         Revoke
       </Button>
     </div>
@@ -178,7 +178,7 @@ function CreateTokenModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
               <Modal.Heading>API Key Created</Modal.Heading>
             </Modal.Header>
             <Modal.Body className="flex flex-col gap-4">
-              <div className="p-3 bg-warning-100 text-warning-800 rounded-lg">
+              <div className="p-3 bg-warning/10 text-warning rounded-lg">
                 <p className="font-bold text-xs uppercase tracking-wider mb-1">Copy now</p>
                 <p className="text-sm">This token won't be shown again.</p>
               </div>
@@ -216,7 +216,7 @@ function CreateTokenModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
               {error && <span className="text-sm text-danger">{error}</span>}
             </Modal.Body>
             <Modal.Footer>
-              <Button className="bg-default-100" onPress={onClose}>Cancel</Button>
+              <Button className="bg-default-200/50 text-default-600" onPress={onClose}>Cancel</Button>
               <Button type="submit" className="bg-primary text-primary-foreground" isDisabled={createMut.isPending}>
                 {createMut.isPending ? "Creating..." : "Create"}
               </Button>

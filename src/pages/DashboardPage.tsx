@@ -8,12 +8,14 @@ import { PersonIcon, SecurityIcon, GroupIcon, SyncIcon, ExtensionIcon, ChevronRi
 function Row({
   icon,
   iconBg,
+  iconColor,
   title,
   subtitle,
   onClick,
 }: {
   icon: React.ReactNode
   iconBg: string
+  iconColor: string
   title: string
   subtitle: string
   onClick: () => void
@@ -21,16 +23,16 @@ function Row({
   return (
     <div 
       onClick={onClick}
-      className="flex items-center gap-4 px-6 py-4 hover:bg-default-100 cursor-pointer transition-colors"
+      className="flex items-center gap-4 px-4 py-3 hover:bg-default-100 cursor-pointer transition-colors"
     >
-      <div className="shrink-0 flex items-center justify-center w-10 h-10 rounded-full text-white" style={{ backgroundColor: iconBg }}>
+      <div className="shrink-0 flex items-center justify-center w-9 h-9 rounded-full" style={{ backgroundColor: iconBg, color: iconColor }}>
         {icon}
       </div>
       <div className="flex-1">
         <h3 className="font-medium text-foreground">{title}</h3>
         <p className="text-sm text-default-500 mt-0.5">{subtitle}</p>
       </div>
-      <ChevronRightIcon className="text-default-400" />
+      <ChevronRightIcon className="text-default-400 w-5 h-5" />
     </div>
   )
 }
@@ -65,7 +67,7 @@ export function DashboardPage() {
   const profileCount = Array.isArray(profiles) ? profiles.length : 0
 
   return (
-    <div className="flex flex-col gap-6 pt-4">
+    <div className="flex flex-col gap-4 pt-4">
       
       {/* User Profile — matches Google Account profile block */}
       <div className="flex items-center gap-4 pb-2">
@@ -85,15 +87,17 @@ export function DashboardPage() {
         <Card.Content className="p-0">
           <div className="flex flex-col divide-y divide-default-100">
             <Row
-              icon={<PersonIcon />}
-              iconBg="#34a853"
+              icon={<PersonIcon className="w-5 h-5" />}
+              iconBg="#e6f4ea"
+              iconColor="#137333"
               title="Personal info"
               subtitle="Name, email, API keys, and account settings"
               onClick={() => navigate('/account')}
             />
             <Row
-              icon={<SecurityIcon />}
-              iconBg="#1a73e8"
+              icon={<SecurityIcon className="w-5 h-5" />}
+              iconBg="#e8f0fe"
+              iconColor="#1967d2"
               title="Security & sign-in"
               subtitle="Password, API tokens, and security settings"
               onClick={() => navigate('/api-keys')}
@@ -107,15 +111,17 @@ export function DashboardPage() {
         <Card.Content className="p-0">
           <div className="flex flex-col divide-y divide-default-100">
             <Row
-              icon={<GroupIcon />}
-              iconBg="#a733ff"
+              icon={<GroupIcon className="w-5 h-5" />}
+              iconBg="#f3e8fd"
+              iconColor="#7627bb"
               title="Profiles"
               subtitle={`${profileCount} profile(s) — name, language, region`}
               onClick={() => navigate('/profiles')}
             />
             <Row
-              icon={<SyncIcon />}
-              iconBg="#d01884"
+              icon={<SyncIcon className="w-5 h-5" />}
+              iconBg="#fce8f3"
+              iconColor="#c4185e"
               title="Imports & syncing"
               subtitle="Connect Trakt, Simkl, and manage import jobs"
               onClick={() => navigate('/provider-imports')}
@@ -129,8 +135,9 @@ export function DashboardPage() {
         <Card.Content className="p-0">
           <div className="flex flex-col divide-y divide-default-100">
             <Row
-              icon={<ExtensionIcon />}
-              iconBg="#e37400"
+              icon={<ExtensionIcon className="w-5 h-5" />}
+              iconBg="#fef7e0"
+              iconColor="#c5630c"
               title="Add-ons"
               subtitle="Install and manage third-party extensions"
               onClick={() => navigate('/addons')}

@@ -9,6 +9,8 @@ import {
   Spinner,
   Accordion,
 } from '@heroui/react'
+import traktSvg from '../../assets/trakt.svg'
+import simklSvg from '../../assets/simkl.svg'
 
 export function ProviderImportsPage() {
   const [selectedProfileId, setSelectedProfileId] = useState<string | null>(null)
@@ -24,7 +26,7 @@ export function ProviderImportsPage() {
   const selectedId = selectedProfileId ?? (profiles[0]?.id ?? null)
 
   return (
-    <div className="flex flex-col gap-6 pt-4">
+    <div className="flex flex-col gap-4 pt-4">
       <h1 className="text-2xl font-medium">Imports</h1>
 
       {/* Profile Filter Chips */}
@@ -35,7 +37,7 @@ export function ProviderImportsPage() {
             return (
               <Chip
                 key={p.id}
-                className={`cursor-pointer font-medium ${isActive ? 'bg-primary text-primary-foreground' : 'bg-transparent border border-default-200 text-default-700'}`}
+                className={`cursor-pointer font-medium ${isActive ? 'bg-primary text-primary-foreground' : 'bg-default-200/50 text-default-600'}`}
                 onClick={() => setSelectedProfileId(p.id)}
               >
                 {p.name}
@@ -48,6 +50,11 @@ export function ProviderImportsPage() {
       {selectedId && <ProviderImportView profileId={selectedId} />}
     </div>
   )
+}
+
+const PROVIDER_ICONS: Record<string, { src: string }> = {
+  trakt: { src: traktSvg },
+  simkl: { src: simklSvg },
 }
 
 function ProviderImportView({ profileId }: { profileId: string }) {
@@ -99,27 +106,8 @@ function ProviderImportView({ profileId }: { profileId: string }) {
     : []
   const jobs: ImportJob[] = Array.isArray((jobsData as any)?.jobs) ? (jobsData as any).jobs : []
 
-  const PROVIDER_ICONS: Record<string, { bg: string; icon: React.ReactNode }> = {
-    trakt: {
-      bg: '#e01e1e',
-      icon: (
-        <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-        </svg>
-      ),
-    },
-    simkl: {
-      bg: '#1a73e8',
-      icon: (
-        <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8 12.5v-9l6 4.5-6 4.5z" />
-        </svg>
-      ),
-    },
-  }
-
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4">
       {/* Provider Connection Rows */}
       <Card>
         <Card.Content className="p-0">
@@ -127,22 +115,21 @@ function ProviderImportView({ profileId }: { profileId: string }) {
             {providerStates.map((ps) => {
               const isConnected = ps.connectionState === 'connected'
               const isPending = ps.connectionState === 'pending_authorization'
-              const providerStyle = PROVIDER_ICONS[ps.provider] || {
-                bg: '#5f6368',
-                icon: (
-                  <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" />
-                  </svg>
-                ),
-              }
+              const providerIcon = PROVIDER_ICONS[ps.provider]
 
               return (
                 <div
                   key={ps.provider}
-                  className="flex flex-col sm:flex-row items-start sm:items-center gap-4 px-6 py-4"
+                  className="flex flex-col sm:flex-row items-start sm:items-center gap-3 px-4 py-3"
                 >
-                  <div className="shrink-0 flex items-center justify-center w-10 h-10 rounded-full text-white" style={{ backgroundColor: providerStyle.bg }}>
-                    {providerStyle.icon}
+                  <div className="shrink-0 flex items-center justify-center w-9 h-9">
+                    {providerIcon ? (
+                      <img src={providerIcon.src} alt={ps.provider} className="w-7 h-7 object-contain" />
+                    ) : (
+                      <div className="w-9 h-9 rounded-full bg-default-200/50 flex items-center justify-center text-default-500 text-sm font-medium uppercase">
+                        {ps.provider.charAt(0)}
+                      </div>
+                    )}
                   </div>
                   
                   <div className="flex-1 min-w-0">
@@ -150,7 +137,7 @@ function ProviderImportView({ profileId }: { profileId: string }) {
                       <h3 className="font-medium capitalize text-foreground">{ps.provider}</h3>
                       <Chip 
                         size="sm" 
-                        className={`h-5 text-[10px] ${isConnected || isPending ? 'border border-default-200 bg-transparent' : 'bg-default-100'} ${isConnected ? 'text-success' : isPending ? 'text-warning' : 'text-default-500'}`}
+                        className={`h-5 text-[10px] ${isConnected ? 'bg-success/10 text-success' : isPending ? 'bg-warning/10 text-warning' : 'bg-default-200/50 text-default-500'}`}
                       >
                         {ps.connectionState?.replace('_', ' ') || 'disconnected'}
                       </Chip>
@@ -178,7 +165,7 @@ function ProviderImportView({ profileId }: { profileId: string }) {
                     )}
                     {ps.canReconnect && (
                       <Button
-                        className="border border-default-200 bg-transparent text-default-700"
+                        className="bg-default-200/50 text-default-600"
                         size="sm"
                         isDisabled={connectMut.isPending}
                         onPress={() => connectMut.mutate({ provider: ps.provider, action: 'reconnect' })}
@@ -188,7 +175,7 @@ function ProviderImportView({ profileId }: { profileId: string }) {
                     )}
                     {ps.primaryAction === 'connect' && (
                       <Button
-                        className="border border-default-200 bg-transparent text-default-700"
+                        className="bg-default-200/50 text-default-600"
                         size="sm"
                         isDisabled={connectMut.isPending}
                         onPress={() => connectMut.mutate({ provider: ps.provider, action: 'connect' })}
@@ -198,7 +185,7 @@ function ProviderImportView({ profileId }: { profileId: string }) {
                     )}
                     {ps.canDisconnect && (
                       <Button
-                        className="bg-transparent text-danger"
+                        className="bg-danger/10 text-danger"
                         size="sm"
                         isDisabled={disconnectMut.isPending}
                         onPress={() => disconnectMut.mutate(ps.provider)}

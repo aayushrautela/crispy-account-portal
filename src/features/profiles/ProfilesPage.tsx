@@ -13,11 +13,11 @@ import {
 import { ChevronRightIcon } from '../../icons'
 
 const AVATAR_COLORS = [
-  { bg: 'bg-primary/15', text: 'text-primary' },
-  { bg: 'bg-secondary/15', text: 'text-secondary' },
-  { bg: 'bg-danger/15', text: 'text-danger' },
-  { bg: 'bg-warning/15', text: 'text-warning' },
-  { bg: 'bg-success/15', text: 'text-success' },
+  { bg: 'bg-primary/10', text: 'text-primary' },
+  { bg: 'bg-secondary/10', text: 'text-secondary' },
+  { bg: 'bg-danger/10', text: 'text-danger' },
+  { bg: 'bg-warning/10', text: 'text-warning' },
+  { bg: 'bg-success/10', text: 'text-success' },
 ]
 
 export function ProfilesPage() {
@@ -33,7 +33,7 @@ export function ProfilesPage() {
   const profiles: Profile[] = Array.isArray((data as any)?.profiles) ? (data as any).profiles : []
 
   return (
-    <div className="flex flex-col gap-6 pt-4">
+    <div className="flex flex-col gap-4 pt-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-medium">Profiles</h1>
         <Button className="bg-primary text-primary-foreground font-medium" onPress={() => setCreating(true)}>
@@ -56,9 +56,9 @@ export function ProfilesPage() {
                   <div
                     key={p.id}
                     onClick={() => setEditing(p)}
-                    className="flex items-center gap-4 px-6 py-4 hover:bg-default-50 cursor-pointer transition-colors"
+                    className="flex items-center gap-4 px-4 py-3 hover:bg-default-50 cursor-pointer transition-colors"
                   >
-                    <div className={`shrink-0 flex items-center justify-center w-10 h-10 rounded-full font-semibold ${color.bg} ${color.text}`}>
+                    <div className={`shrink-0 flex items-center justify-center w-9 h-9 rounded-full font-semibold ${color.bg} ${color.text}`}>
                       {initial}
                     </div>
                     
@@ -66,7 +66,7 @@ export function ProfilesPage() {
                       <div className="flex items-center gap-2">
                         <h3 className="font-medium text-foreground">{p.name}</h3>
                         {p.isKids && (
-                          <Chip size="sm" className="bg-warning/20 text-warning-700 text-[10px] h-5">Kids</Chip>
+                          <Chip size="sm" className="bg-warning/10 text-warning text-[10px] h-5">Kids</Chip>
                         )}
                       </div>
                       <p className="text-sm text-default-500 mt-0.5">
@@ -75,7 +75,7 @@ export function ProfilesPage() {
                       </p>
                     </div>
 
-                    <ChevronRightIcon className="text-default-400" />
+                    <ChevronRightIcon className="text-default-400 w-5 h-5" />
                   </div>
                 )
               })}
@@ -220,7 +220,7 @@ function ProfileFormModal({
             {error && <span className="text-sm text-danger">{error}</span>}
           </Modal.Body>
           <Modal.Footer>
-            <Button className="bg-default-100" onPress={onClose}>Cancel</Button>
+            <Button className="bg-default-200/50 text-default-600" onPress={onClose}>Cancel</Button>
             <Button type="submit" className="bg-primary text-primary-foreground font-medium" isDisabled={createMut.isPending || updateMut.isPending}>
               {profile ? 'Save' : 'Create'}
             </Button>

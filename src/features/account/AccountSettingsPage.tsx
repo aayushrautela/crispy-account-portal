@@ -15,7 +15,7 @@ export function AccountSettingsPage() {
   const navigate = useNavigate()
 
   return (
-    <div className="flex flex-col gap-6 pt-4">
+    <div className="flex flex-col gap-4 pt-4">
       <h1 className="text-2xl font-medium">Account</h1>
 
       <Card>
@@ -25,15 +25,17 @@ export function AccountSettingsPage() {
               provider="openrouter"
               title="OpenRouter API Key"
               subtitle="Routes LLM requests via secure endpoints"
-              iconBg="#1a73e8"
-              icon={<VpnKeyIcon />}
+              iconBg="#e8f0fe"
+              iconColor="#1967d2"
+              icon={<VpnKeyIcon className="w-5 h-5" />}
             />
             <ApiKeyRow
               provider="mdblist"
               title="MDBList API Key"
               subtitle="Movie metadata, ratings, and filters"
-              iconBg="#e37400"
-              icon={<MovieIcon />}
+              iconBg="#fef7e0"
+              iconColor="#c5630c"
+              icon={<MovieIcon className="w-5 h-5" />}
             />
           </div>
         </Card.Content>
@@ -54,12 +56,14 @@ function ApiKeyRow({
   provider,
   title,
   iconBg,
+  iconColor,
   icon,
 }: {
   provider: string
   title: string
   subtitle: string
   iconBg: string
+  iconColor: string
   icon: React.ReactNode
 }) {
   const [expanded, setExpanded] = useState(false)
@@ -92,20 +96,20 @@ function ApiKeyRow({
     <div className="flex flex-col">
       <div 
         onClick={() => setExpanded(!expanded)} 
-        className="flex items-center gap-4 px-6 py-4 hover:bg-default-100 cursor-pointer transition-colors"
+        className="flex items-center gap-4 px-4 py-3 hover:bg-default-100 cursor-pointer transition-colors"
       >
-        <div className="shrink-0 flex items-center justify-center w-10 h-10 rounded-full text-white" style={{ backgroundColor: iconBg }}>
+        <div className="shrink-0 flex items-center justify-center w-9 h-9 rounded-full" style={{ backgroundColor: iconBg, color: iconColor }}>
           {icon}
         </div>
         <div className="flex-1">
           <h3 className="font-medium text-foreground">{title}</h3>
           <p className="text-sm text-default-500 mt-0.5">{statusText}</p>
         </div>
-        <ExpandMoreIcon className={`text-default-400 transition-transform ${expanded ? 'rotate-180' : ''}`} />
+        <ExpandMoreIcon className={`w-5 h-5 text-default-400 transition-transform ${expanded ? 'rotate-180' : ''}`} />
       </div>
 
       {expanded && (
-        <div className="px-6 pb-6 pt-2 flex flex-col gap-4">
+        <div className="px-4 pb-4 pt-1 flex flex-col gap-4">
           {secret?.present && (
             <div className="flex justify-end">
               <Button 
@@ -163,20 +167,20 @@ function DeleteAccountRow({
     <div className="flex flex-col">
       <div 
         onClick={() => setConfirming(!confirming)} 
-        className="flex items-center gap-4 px-6 py-4 hover:bg-danger-50 cursor-pointer transition-colors"
+        className="flex items-center gap-4 px-4 py-3 hover:bg-danger-50 cursor-pointer transition-colors"
       >
-        <div className="shrink-0 flex items-center justify-center w-10 h-10 rounded-full bg-danger text-white">
-          <DeleteIcon />
+        <div className="shrink-0 flex items-center justify-center w-9 h-9 rounded-full bg-danger/10 text-danger">
+          <DeleteIcon className="w-5 h-5" />
         </div>
         <div className="flex-1">
           <h3 className="font-medium text-danger">Delete account</h3>
           <p className="text-sm text-default-500 mt-0.5">Permanently delete your account and all data</p>
         </div>
-        <ExpandMoreIcon className={`text-default-400 transition-transform ${confirming ? 'rotate-180' : ''}`} />
+        <ExpandMoreIcon className={`w-5 h-5 text-default-400 transition-transform ${confirming ? 'rotate-180' : ''}`} />
       </div>
 
       {confirming && (
-        <div className="px-6 pb-6 pt-2 flex flex-col gap-4 border-t border-danger/10 mt-2">
+        <div className="px-4 pb-4 pt-1 flex flex-col gap-4 border-t border-danger/10 mt-2">
           <p className="text-sm text-default-500">
             This is permanent. Type <span className="text-danger font-bold">DELETE</span> to confirm.
           </p>
@@ -195,7 +199,7 @@ function DeleteAccountRow({
               Delete Permanently
             </Button>
             <Button
-              className="bg-transparent text-default-700 border border-default-200"
+              className="bg-default-200/50 text-default-600"
               onPress={() => {
                 setConfirming(false)
                 setConfirmText('')
