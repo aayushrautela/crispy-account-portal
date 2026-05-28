@@ -32,7 +32,7 @@ export function PortalLayout({ children }: { children: React.ReactNode }) {
             
             <div className="w-12 flex justify-center">
               {!isHome && (
-                <Button isIconOnly className="bg-transparent hover:bg-default-100" radius="full" onPress={() => navigate('/')} aria-label="home">
+                <Button isIconOnly className="bg-transparent hover:bg-default-100 rounded-full" onPress={() => navigate('/')} aria-label="home">
                   <ArrowBackIcon />
                 </Button>
               )}
@@ -45,10 +45,10 @@ export function PortalLayout({ children }: { children: React.ReactNode }) {
             <div className="w-16 flex justify-end gap-1">
               {isHome ? (
                 <>
-                  <Button isIconOnly className="bg-transparent hover:bg-default-100" radius="full" aria-label="search">
+                  <Button isIconOnly className="bg-transparent hover:bg-default-100 rounded-full" aria-label="search">
                     <SearchIcon />
                   </Button>
-                  <Button isIconOnly className="bg-transparent hover:bg-default-100" radius="full" aria-label="logout" onPress={() => signOut()}>
+                  <Button isIconOnly className="bg-transparent hover:bg-default-100 rounded-full" aria-label="logout" onPress={() => signOut()}>
                     <LogoutIcon />
                   </Button>
                 </>
