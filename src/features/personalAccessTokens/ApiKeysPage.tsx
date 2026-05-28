@@ -3,28 +3,22 @@ import { api } from '../../api/client'
 import { useState } from 'react'
 import type { PatToken } from '../../api/types'
 import {
-  Box,
-  Typography,
   Button,
   Card,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
+  CardBody,
   Avatar,
   Chip,
-  CircularProgress,
-  TextField,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
+  Spinner,
+  Input,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
   Accordion,
-  AccordionSummary,
-  AccordionDetails
-} from '@mui/material'
+  AccordionItem
+} from '@heroui/react'
 import SecurityIcon from '@mui/icons-material/Security'
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import KeyIcon from '@mui/icons-material/Key'
 
 const INITIAL_SHOW = 4
@@ -50,112 +44,115 @@ export function ApiKeysPage() {
   })
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, pt: 2 }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Typography variant="h5" sx={{ fontWeight: 500 }}>API Keys</Typography>
-        <Button onClick={() => setCreating(true)} variant="contained" size="small">
+    <div className="flex flex-col gap-6 pt-4">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-medium">API Keys</h1>
+        <Button color="primary" onPress={() => setCreating(true)}>
           Create Key
         </Button>
-      </Box>
+      </div>
 
       {isLoading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-          <CircularProgress />
-        </Box>
+        <div className="flex justify-center p-8">
+          <Spinner />
+        </div>
       ) : tokens.length === 0 ? (
-        <Card variant="outlined" sx={{ py: 6, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-          <KeyIcon sx={{ fontSize: 48, color: 'text.secondary', opacity: 0.5 }} />
-          <Typography variant="body2" color="text.secondary">No API keys yet.</Typography>
+        <Card className="py-12">
+          <CardBody className="flex flex-col items-center gap-4">
+            <KeyIcon className="text-default-300 w-12 h-12" />
+            <p className="text-default-500 text-sm">No API keys yet.</p>
+          </CardBody>
         </Card>
       ) : tokens.length <= INITIAL_SHOW ? (
-        <Card variant="outlined">
-          <List disablePadding>
-            {tokens.map((t) => (
-              <TokenRow key={t.id} token={t} onRevoke={() => setRevoking(t)} />
-            ))}
-          </List>
-        </Card>
-      ) : (
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <Card variant="outlined">
-            <List disablePadding>
-              {tokens.slice(0, INITIAL_SHOW).map((t) => (
+        <Card>
+          <CardBody className="p-0">
+            <div className="flex flex-col divide-y divide-default-100">
+              {tokens.map((t) => (
                 <TokenRow key={t.id} token={t} onRevoke={() => setRevoking(t)} />
               ))}
-            </List>
+            </div>
+          </CardBody>
+        </Card>
+      ) : (
+        <div className="flex flex-col gap-4">
+          <Card>
+            <CardBody className="p-0">
+              <div className="flex flex-col divide-y divide-default-100">
+                {tokens.slice(0, INITIAL_SHOW).map((t) => (
+                  <TokenRow key={t.id} token={t} onRevoke={() => setRevoking(t)} />
+                ))}
+              </div>
+            </CardBody>
           </Card>
-          <Accordion variant="outlined" sx={{ '&:before': { display: 'none' } }}>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Typography sx={{ fontWeight: 500 }}>Show more</Typography>
-                <Chip label={(tokens.length - INITIAL_SHOW).toString()} size="small" sx={{ height: 20, fontSize: '0.7rem' }} />
-              </Box>
-            </AccordionSummary>
-            <AccordionDetails sx={{ p: 0 }}>
-              <List disablePadding>
+          <Accordion variant="bordered" className="bg-content1">
+            <AccordionItem 
+              key="more" 
+              aria-label="Show more" 
+              title={
+                <div className="flex items-center gap-2">
+                  <span className="font-medium">Show more</span>
+                  <Chip size="sm" variant="flat">{tokens.length - INITIAL_SHOW}</Chip>
+                </div>
+              }
+            >
+              <div className="flex flex-col divide-y divide-default-100 border-t border-default-100">
                 {tokens.slice(INITIAL_SHOW).map((t) => (
                   <TokenRow key={t.id} token={t} onRevoke={() => setRevoking(t)} />
                 ))}
-              </List>
-            </AccordionDetails>
+              </div>
+            </AccordionItem>
           </Accordion>
-        </Box>
+        </div>
       )}
 
-      {creating && <CreateTokenModal onClose={() => setCreating(false)} />}
+      {creating && <CreateTokenModal isOpen={creating} onClose={() => setCreating(false)} />}
 
-      {revoking && (
-        <Dialog open onClose={() => setRevoking(null)}>
-          <DialogTitle>Revoke API Key</DialogTitle>
-          <DialogContent>
-            <Typography variant="body2" color="text.secondary">
-              Revoke <Typography component="span" sx={{ fontWeight: 500 }} color="text.primary">{revoking.name}</Typography>? This cannot be undone.
-            </Typography>
-          </DialogContent>
-          <DialogActions sx={{ p: 3, pt: 1 }}>
-            <Button onClick={() => setRevoking(null)} color="inherit">Cancel</Button>
-            <Button onClick={() => revokeMut.mutate(revoking.id)} variant="contained" color="error" disabled={revokeMut.isPending}>
-              Revoke
-            </Button>
-          </DialogActions>
-        </Dialog>
-      )}
-    </Box>
+      <Modal isOpen={!!revoking} onOpenChange={(open) => !open && setRevoking(null)}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader>Revoke API Key</ModalHeader>
+              <ModalBody>
+                <p className="text-default-500 text-sm">
+                  Revoke <span className="font-medium text-foreground">{revoking?.name}</span>? This cannot be undone.
+                </p>
+              </ModalBody>
+              <ModalFooter>
+                <Button variant="light" onPress={onClose}>Cancel</Button>
+                <Button color="danger" isLoading={revokeMut.isPending} onPress={() => revoking && revokeMut.mutate(revoking.id)}>
+                  Revoke
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+    </div>
   )
 }
 
 function TokenRow({ token, onRevoke }: { token: PatToken; onRevoke: () => void }) {
   return (
-    <ListItem sx={{ py: 2, px: 3, display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'flex-start', sm: 'center' }, gap: 2 }}>
-      <ListItemIcon sx={{ minWidth: 0, mr: 2 }}>
-        <Avatar sx={{ bgcolor: 'info.main', width: 40, height: 40, color: '#fff' }}>
-          <SecurityIcon />
-        </Avatar>
-      </ListItemIcon>
+    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 hover:bg-default-50 transition-colors">
+      <Avatar icon={<SecurityIcon fontSize="small" />} color="primary" classNames={{ base: "shrink-0" }} />
       
-      <ListItemText
-        primary={<Typography sx={{ fontWeight: 500 }}>{token.name}</Typography>}
-        secondary={
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-            Created {new Date(token.createdAt).toLocaleDateString()}
-            <Box component="span" sx={{ ml: 1 }}>
-              · {token.lastUsedAt ? `Last used ${new Date(token.lastUsedAt).toLocaleDateString()}` : 'Never used'}
-            </Box>
-          </Typography>
-        }
-        sx={{ flex: 1, m: 0 }}
-      />
+      <div className="flex-1">
+        <p className="font-medium text-base">{token.name}</p>
+        <p className="text-sm text-default-500 mt-1">
+          Created {new Date(token.createdAt).toLocaleDateString()}
+          <span className="mx-2">·</span>
+          {token.lastUsedAt ? `Last used ${new Date(token.lastUsedAt).toLocaleDateString()}` : 'Never used'}
+        </p>
+      </div>
 
-      <Box sx={{ flexShrink: 0, mt: { xs: 1, sm: 0 } }}>
-        <Button variant="outlined" size="small" onClick={onRevoke} color="inherit">
-          Revoke
-        </Button>
-      </Box>
-    </ListItem>
+      <Button variant="bordered" size="sm" onPress={onRevoke}>
+        Revoke
+      </Button>
+    </div>
   )
 }
 
-function CreateTokenModal({ onClose }: { onClose: () => void }) {
+function CreateTokenModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const queryClient = useQueryClient()
   const [name, setName] = useState('')
   const [plaintext, setPlaintext] = useState<string | null>(null)
@@ -183,55 +180,60 @@ function CreateTokenModal({ onClose }: { onClose: () => void }) {
   }
 
   return (
-    <Dialog open onClose={plaintext ? undefined : onClose} fullWidth maxWidth="sm">
-      {plaintext ? (
-        <>
-          <DialogTitle>API Key Created</DialogTitle>
-          <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <Box sx={{ p: 2, bgcolor: 'warning.main', color: 'warning.contrastText', opacity: 0.9 }}>
-              <Typography variant="overline" sx={{ fontWeight: 'bold' }}>Copy now</Typography>
-              <Typography variant="body2">This token won't be shown again.</Typography>
-            </Box>
-            <Box sx={{ p: 2, bgcolor: 'background.default', border: 1, borderColor: 'divider', fontFamily: 'monospace', wordBreak: 'break-all', userSelect: 'all', color: 'primary.main' }}>
-              {plaintext}
-            </Box>
-          </DialogContent>
-          <DialogActions sx={{ p: 3, pt: 1 }}>
-            <Button 
-              variant="contained"
-              onClick={() => {
-                queryClient.invalidateQueries({ queryKey: ['pat'] })
-                onClose()
-              }}
-            >
-              Done
-            </Button>
-          </DialogActions>
-        </>
-      ) : (
-        <form onSubmit={handleSubmit}>
-          <DialogTitle>Create API Key</DialogTitle>
-          <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
-            <TextField
-              autoFocus
-              label="Token Name"
-              fullWidth
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              placeholder="e.g. desktop-app, cron-import"
-              margin="dense"
-            />
-            {error && <Typography variant="caption" color="error">{error}</Typography>}
-          </DialogContent>
-          <DialogActions sx={{ p: 3, pt: 0 }}>
-            <Button onClick={onClose} color="inherit">Cancel</Button>
-            <Button type="submit" variant="contained" disabled={createMut.isPending}>
-              Create
-            </Button>
-          </DialogActions>
-        </form>
-      )}
-    </Dialog>
+    <Modal isOpen={isOpen} onOpenChange={(open) => !open && !plaintext && onClose()} isDismissable={!plaintext} hideCloseButton={!!plaintext}>
+      <ModalContent>
+        {(onCloseFn) => (
+          <>
+            {plaintext ? (
+              <>
+                <ModalHeader>API Key Created</ModalHeader>
+                <ModalBody className="flex flex-col gap-4">
+                  <div className="p-3 bg-warning-100 text-warning-800 rounded-lg">
+                    <p className="font-bold text-xs uppercase tracking-wider mb-1">Copy now</p>
+                    <p className="text-sm">This token won't be shown again.</p>
+                  </div>
+                  <div className="p-3 bg-default-100 border border-default-200 rounded-lg font-mono text-sm break-all select-all text-primary">
+                    {plaintext}
+                  </div>
+                </ModalBody>
+                <ModalFooter>
+                  <Button 
+                    color="primary"
+                    onPress={() => {
+                      queryClient.invalidateQueries({ queryKey: ['pat'] })
+                      onCloseFn()
+                    }}
+                  >
+                    Done
+                  </Button>
+                </ModalFooter>
+              </>
+            ) : (
+              <form onSubmit={handleSubmit}>
+                <ModalHeader>Create API Key</ModalHeader>
+                <ModalBody className="flex flex-col gap-4">
+                  <Input
+                    autoFocus
+                    label="Token Name"
+                    value={name}
+                    onValueChange={setName}
+                    isRequired
+                    placeholder="e.g. desktop-app, cron-import"
+                    errorMessage={error}
+                    isInvalid={!!error}
+                  />
+                </ModalBody>
+                <ModalFooter>
+                  <Button variant="light" onPress={onCloseFn}>Cancel</Button>
+                  <Button type="submit" color="primary" isLoading={createMut.isPending}>
+                    Create
+                  </Button>
+                </ModalFooter>
+              </form>
+            )}
+          </>
+        )}
+      </ModalContent>
+    </Modal>
   )
 }

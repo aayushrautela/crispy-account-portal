@@ -1,11 +1,6 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { ThemeProvider, createTheme, CssBaseline } from '@mui/material'
-import '@fontsource/roboto/300.css'
-import '@fontsource/roboto/400.css'
-import '@fontsource/roboto/500.css'
-import '@fontsource/roboto/700.css'
-
+import { HeroUIProvider } from '@heroui/react'
 import { AuthProvider } from '../auth/useSession'
 import { PortalLayout } from '../layouts/PortalLayout'
 import { RequireAuth } from '../auth/RequireAuth'
@@ -23,25 +18,6 @@ const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30_000 } },
 })
 
-const darkTheme = createTheme({
-  palette: {
-    mode: 'dark',
-    primary: {
-      main: '#a8c7fa', // Google Blue in dark mode
-    },
-    background: {
-      default: '#1c1b1d', // m3-bg equivalent
-      paper: '#2d2e30',
-    },
-  },
-  typography: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
-  },
-  shape: {
-    borderRadius: 8,
-  },
-})
-
 function AppRoutes() {
   return (
     <Routes>
@@ -57,17 +33,23 @@ function AppRoutes() {
   )
 }
 
+function HeroUIProviderWrapper({ children }: { children: React.ReactNode }) {
+  const navigate = useNavigate();
+  return <HeroUIProvider navigate={navigate}>{children}</HeroUIProvider>;
+}
+
 export function App() {
   return (
-    <ThemeProvider theme={darkTheme}>
-      <CssBaseline />
+    <main className="dark text-foreground bg-background min-h-screen">
       <BrowserRouter>
-        <QueryClientProvider client={queryClient}>
-          <AuthProvider>
-            <AppRoutes />
-          </AuthProvider>
-        </QueryClientProvider>
+        <HeroUIProviderWrapper>
+          <QueryClientProvider client={queryClient}>
+            <AuthProvider>
+              <AppRoutes />
+            </AuthProvider>
+          </QueryClientProvider>
+        </HeroUIProviderWrapper>
       </BrowserRouter>
-    </ThemeProvider>
+    </main>
   )
 }
