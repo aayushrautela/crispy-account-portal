@@ -5,12 +5,16 @@ import { Button } from '../../components/Button'
 import { Input } from '../../components/Input'
 import { Modal } from '../../components/Modal'
 import { Spinner } from '../../components/Spinner'
+import { ExpandableSection } from '../../components/ExpandableSection'
 import { useState } from 'react'
 import type { PatToken } from '../../api/types'
+
+const INITIAL_SHOW = 4
 
 export function ApiKeysPage() {
   const queryClient = useQueryClient()
   const [creating, setCreating] = useState(false)
+  const [revoking, setRevoking] = useState<PatToken | null>(null)
 
   const { data, isLoading } = useQuery({
     queryKey: ['pat'],
@@ -21,14 +25,11 @@ export function ApiKeysPage() {
 
   const revokeMut = useMutation({
     mutationFn: async (id: string) => api.pat.revoke(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['pat'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pat'] })
+      setRevoking(null)
+    },
   })
-
-  const shieldIcon = (
-    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-    </svg>
-  )
 
   return (
     <div className="flex flex-col gap-6 max-w-3xl">
@@ -36,7 +37,7 @@ export function ApiKeysPage() {
         <div className="flex flex-col gap-1">
           <h1 className="text-2xl font-semibold tracking-wide font-display text-stone-100">API Keys</h1>
           <p className="text-xs text-stone-400 font-sans tracking-wide">
-            Generate personal access tokens to securely query the Crispy REST API via terminal tools.
+            Personal access tokens for the Crispy REST API.
           </p>
         </div>
         <Button onClick={() => setCreating(true)} variant="primary" size="sm">
@@ -46,59 +47,89 @@ export function ApiKeysPage() {
 
       {isLoading ? (
         <Spinner />
-      ) : (
+      ) : tokens.length === 0 ? (
+        <Card className="text-center py-10">
+          <div className="flex flex-col items-center gap-3">
+            <svg className="w-8 h-8 text-stone-600" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" />
+            </svg>
+            <p className="text-sm text-stone-500 font-sans">No API keys yet.</p>
+          </div>
+        </Card>
+      ) : tokens.length <= INITIAL_SHOW ? (
         <Card noPadding>
           {tokens.map((t) => (
-            <div
-              key={t.id}
-              className="flex items-center justify-between gap-4 px-6 py-4 border-b border-m3-border/10 last:border-none hover:bg-m3-hover/30 transition-colors"
-            >
-              <div className="flex items-center gap-4 min-w-0 flex-1">
-                {/* Shield badge */}
-                <div className="h-10 w-10 shrink-0 rounded-full flex items-center justify-center bg-m3-blue/10 text-m3-blue">
-                  {shieldIcon}
-                </div>
-                
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-stone-100 font-sans tracking-wide truncate">
-                    {t.name}
-                  </p>
-                  <p className="text-xs text-stone-400 font-sans mt-0.5 tracking-wide">
-                    Created {new Date(t.createdAt).toLocaleDateString()}
-                    {t.lastUsedAt ? (
-                      <>
-                        <span className="text-stone-600 font-light mx-1.5">·</span>
-                        <span>Last used {new Date(t.lastUsedAt).toLocaleDateString()}</span>
-                      </>
-                    ) : (
-                      <>
-                        <span className="text-stone-600 font-light mx-1.5">·</span>
-                        <span>Never used</span>
-                      </>
-                    )}
-                  </p>
-                </div>
-              </div>
+            <TokenRow key={t.id} token={t} onRevoke={() => setRevoking(t)} />
+          ))}
+        </Card>
+      ) : (
+        <>
+          <Card noPadding>
+            {tokens.slice(0, INITIAL_SHOW).map((t) => (
+              <TokenRow key={t.id} token={t} onRevoke={() => setRevoking(t)} />
+            ))}
+          </Card>
+          <ExpandableSection title="Show more" count={tokens.length - INITIAL_SHOW}>
+            <Card noPadding>
+              {tokens.slice(INITIAL_SHOW).map((t) => (
+                <TokenRow key={t.id} token={t} onRevoke={() => setRevoking(t)} />
+              ))}
+            </Card>
+          </ExpandableSection>
+        </>
+      )}
 
+      {creating && <CreateTokenModal onClose={() => setCreating(false)} />}
+
+      {revoking && (
+        <Modal title="Revoke API Key" onClose={() => setRevoking(null)} open>
+          <div className="flex flex-col gap-4">
+            <p className="text-sm text-stone-300 font-sans">
+              Revoke <strong className="text-stone-100">{revoking.name}</strong>? This cannot be undone.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <Button variant="secondary" onClick={() => setRevoking(null)}>
+                Cancel
+              </Button>
               <Button
                 variant="danger"
-                size="sm"
                 loading={revokeMut.isPending}
-                onClick={() => revokeMut.mutate(t.id)}
+                onClick={() => revokeMut.mutate(revoking.id)}
               >
                 Revoke
               </Button>
             </div>
-          ))}
-          {tokens.length === 0 && (
-            <div className="p-8 text-center">
-              <p className="text-xs text-stone-500 font-sans">No API keys created yet.</p>
-            </div>
-          )}
-        </Card>
+          </div>
+        </Modal>
       )}
+    </div>
+  )
+}
 
-      {creating && <CreateTokenModal onClose={() => setCreating(false)} />}
+function TokenRow({ token, onRevoke }: { token: PatToken; onRevoke: () => void }) {
+  return (
+    <div className="flex items-center justify-between gap-4 px-6 py-4 border-b border-m3-border/10 last:border-none hover:bg-m3-hover/30 transition-colors">
+      <div className="flex items-center gap-4 min-w-0 flex-1">
+        <div className="h-10 w-10 shrink-0 rounded-full flex items-center justify-center bg-m3-blue/10 text-m3-blue">
+          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" />
+          </svg>
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-semibold text-stone-100 font-sans tracking-wide truncate">{token.name}</p>
+          <p className="text-xs text-stone-400 font-sans mt-0.5 tracking-wide">
+            Created {new Date(token.createdAt).toLocaleDateString()}
+            {token.lastUsedAt ? (
+              <span className="ml-1.5">· Last used {new Date(token.lastUsedAt).toLocaleDateString()}</span>
+            ) : (
+              <span className="ml-1.5">· Never used</span>
+            )}
+          </p>
+        </div>
+      </div>
+      <Button variant="danger" size="sm" onClick={onRevoke}>
+        Revoke
+      </Button>
     </div>
   )
 }
@@ -136,17 +167,17 @@ function CreateTokenModal({ onClose }: { onClose: () => void }) {
         <div className="flex flex-col gap-4">
           <div className="p-3.5 bg-m3-orange/10 border border-m3-orange/20 rounded-2xl flex flex-col gap-1">
             <p className="text-xs font-semibold text-m3-orange uppercase tracking-wider font-sans">
-              Attention Required
+              Copy now
             </p>
             <p className="text-xs text-stone-300 font-sans">
-              Copy this token key now. For safety, it will not be displayed again.
+              This token won't be shown again.
             </p>
           </div>
-          
+
           <div className="rounded-2xl bg-m3-bg border border-m3-border/30 p-4 text-xs font-mono break-all select-all text-[#a8c7fa] tracking-wider leading-relaxed shadow-inner">
             {plaintext}
           </div>
-          
+
           <div className="flex justify-end mt-1">
             <Button
               onClick={() => {
@@ -161,21 +192,21 @@ function CreateTokenModal({ onClose }: { onClose: () => void }) {
       ) : (
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           <Input
-            label="Token Identifier"
+            label="Token Name"
             value={name}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
             required
             placeholder="e.g. desktop-app, cron-import"
           />
-          
-          {error && <p className="text-xs text-red-400 font-sans ml-3">{error}</p>}
-          
+
+          {error && <p className="text-xs text-red-400 font-sans">{error}</p>}
+
           <div className="flex gap-3 justify-end mt-2">
             <Button variant="secondary" type="button" onClick={onClose}>
               Cancel
             </Button>
             <Button type="submit" loading={createMut.isPending}>
-              Create Key
+              Create
             </Button>
           </div>
         </form>

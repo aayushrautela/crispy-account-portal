@@ -15,8 +15,8 @@ function ExchangeFailure({ error }: { error: string }) {
     <div className="min-h-screen flex items-center justify-center bg-m3-bg text-[#e3e3e3] px-4 font-sans">
       <div className="text-center max-w-md w-full bg-m3-surface rounded-3xl p-8 border border-m3-border/10 shadow-2xl">
         <div className="h-16 w-16 bg-red-500/[0.08] text-red-400 rounded-full flex items-center justify-center mx-auto mb-5 text-2xl shadow-sm">
-          <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" />
           </svg>
         </div>
         <h1 className="text-2xl font-bold text-red-400 font-display tracking-wide mb-2">Sign In Failed</h1>

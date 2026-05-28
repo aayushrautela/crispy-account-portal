@@ -3,6 +3,7 @@ import { api } from '../../api/client'
 import { Card } from '../../components/Card'
 import { Button } from '../../components/Button'
 import { Spinner } from '../../components/Spinner'
+import { ExpandableSection } from '../../components/ExpandableSection'
 import { useState } from 'react'
 import type { ProviderState, ImportJob } from '../../api/types'
 
@@ -22,13 +23,13 @@ export function ProviderImportsPage() {
   return (
     <div className="flex flex-col gap-6 max-w-3xl">
       <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-semibold tracking-wide font-display text-stone-100">Provider Imports</h1>
+        <h1 className="text-2xl font-semibold tracking-wide font-display text-stone-100">Imports</h1>
         <p className="text-xs text-stone-400 font-sans tracking-wide">
-          Sync watch histories, ratings, and active imports from global metadata streaming networks.
+          Connect and sync with external providers like Trakt and Simkl.
         </p>
       </div>
 
-      {/* M3 Filter Chips Row */}
+      {/* Profile Filter Chips */}
       <div className="flex gap-2.5 flex-wrap border-b border-m3-border/10 pb-4">
         {profiles.map((p) => {
           const isActive = selectedId === p.id
@@ -47,7 +48,7 @@ export function ProviderImportsPage() {
           )
         })}
         {profiles.length === 0 && (
-          <p className="text-xs text-stone-500 font-sans">No profiles created yet to configure imports.</p>
+          <p className="text-xs text-stone-500 font-sans">No profiles yet.</p>
         )}
       </div>
 
@@ -101,13 +102,13 @@ function ProviderImportView({ profileId }: { profileId: string }) {
 
   return (
     <div className="flex flex-col gap-6">
-      
-      {/* Grouped Connection Tiles */}
+
+      {/* Provider Connection Tiles */}
       <Card noPadding>
         {providerStates.map((ps) => {
           const isConnected = ps.connectionState === 'connected'
           const isPending = ps.connectionState === 'pending_authorization'
-          
+
           return (
             <div
               key={ps.provider}
@@ -118,10 +119,8 @@ function ProviderImportView({ profileId }: { profileId: string }) {
                   <h3 className="text-sm font-semibold capitalize text-stone-100 font-sans tracking-wide">
                     {ps.provider}
                   </h3>
-                  
-                  {/* Status Badges */}
                   <span
-                    className={`text-[9px] font-semibold px-2 py-0.5 rounded-full font-sans tracking-wider uppercase border ${
+                    className={`text-[10px] font-semibold px-2 py-0.5 rounded-full font-sans tracking-wider uppercase border ${
                       isConnected
                         ? 'bg-m3-green/10 text-m3-green border-m3-green/20'
                         : isPending
@@ -132,16 +131,13 @@ function ProviderImportView({ profileId }: { profileId: string }) {
                     {ps.connectionState?.replace('_', ' ') || 'disconnected'}
                   </span>
                 </div>
-                
                 <p className="text-xs text-stone-400 font-sans mt-1">
                   {ps.statusLabel}
-                  {ps.externalUsername ? (
+                  {ps.externalUsername && (
                     <>
                       <span className="text-stone-600 font-light mx-1.5">·</span>
-                      <span>Connected as <strong className="text-stone-300 font-medium">{ps.externalUsername}</strong></span>
+                      <span>as <strong className="text-stone-300 font-medium">{ps.externalUsername}</strong></span>
                     </>
-                  ) : (
-                    ''
                   )}
                 </p>
               </div>
@@ -193,31 +189,26 @@ function ProviderImportView({ profileId }: { profileId: string }) {
         })}
         {providerStates.length === 0 && (
           <div className="p-8 text-center">
-            <p className="text-xs text-stone-500 font-sans">No sync providers available.</p>
+            <p className="text-xs text-stone-500 font-sans">No providers available.</p>
           </div>
         )}
       </Card>
 
-      {/* Sync / Import Jobs Section */}
+      {/* Import Jobs — collapsible */}
       {jobs.length > 0 && (
-        <div className="flex flex-col gap-2.5 mt-2">
-          <h3 className="text-xs font-semibold text-stone-400 font-sans ml-4 uppercase tracking-wider">
-            Recent Sync History
-          </h3>
-          
+        <ExpandableSection title="Import History" count={jobs.length}>
           <Card noPadding>
-            {jobs.map((job) => {
+            {jobs.slice(0, 20).map((job) => {
               const isSuccess = job.status === 'succeeded'
               const isFailed = job.status === 'failed'
               const isRunning = job.status === 'running'
-              
+
               return (
                 <div
                   key={job.id}
                   className="flex items-center justify-between gap-4 px-6 py-4 border-b border-m3-border/10 last:border-none"
                 >
                   <div className="flex items-center gap-3 min-w-0 flex-1">
-                    {/* Status Dot */}
                     <span
                       className={`h-2.5 w-2.5 rounded-full shrink-0 ${
                         isSuccess
@@ -229,27 +220,25 @@ function ProviderImportView({ profileId }: { profileId: string }) {
                           : 'bg-stone-600'
                       }`}
                     />
-                    
                     <div className="min-w-0 flex-1">
                       <p className="text-xs font-semibold capitalize text-stone-100 font-sans truncate">
                         {job.provider} sync
                       </p>
                       {job.errorMessage && (
                         <p className="text-[10px] text-red-400 font-sans truncate mt-0.5">
-                          Error: {job.errorMessage}
+                          {job.errorMessage}
                         </p>
                       )}
                     </div>
                   </div>
-                  
-                  <span className="text-[10px] font-semibold text-stone-400 uppercase font-sans tracking-wide">
+                  <span className="text-[10px] font-semibold text-stone-400 uppercase font-sans tracking-wide shrink-0">
                     {job.status}
                   </span>
                 </div>
               )
             })}
           </Card>
-        </div>
+        </ExpandableSection>
       )}
     </div>
   )
