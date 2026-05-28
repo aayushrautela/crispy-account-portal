@@ -1,8 +1,8 @@
 import { useEffect } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/useSession'
 import avatarImg from '../assets/avatar.png'
-import { AppBar, Toolbar, IconButton, Typography, Box, Container, Avatar } from '@mui/material'
+import { Button, Avatar } from '@heroui/react'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import SearchIcon from '@mui/icons-material/Search'
 import LogoutIcon from '@mui/icons-material/Logout'
@@ -25,45 +25,45 @@ export function PortalLayout({ children }: { children: React.ReactNode }) {
   }, [isHome, location, navigate])
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', bgcolor: 'background.default', color: 'text.primary' }}>
-      <AppBar position="sticky" elevation={0} sx={{ bgcolor: 'background.default', borderBottom: 1, borderColor: 'divider' }}>
-        <Container maxWidth="md" disableGutters>
-          <Toolbar sx={{ justifyContent: 'space-between', px: 1 }}>
+    <div className="flex flex-col min-h-screen bg-background text-foreground">
+      <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-divider">
+        <div className="max-w-4xl mx-auto w-full px-4">
+          <nav className="flex items-center justify-between h-16">
             
-            <Box sx={{ width: 48, display: 'flex', justifyContent: 'center' }}>
+            <div className="w-12 flex justify-center">
               {!isHome && (
-                <IconButton component={Link} to="/" edge="start" color="inherit" aria-label="home">
+                <Button isIconOnly variant="light" radius="full" onPress={() => navigate('/')} aria-label="home">
                   <ArrowBackIcon />
-                </IconButton>
+                </Button>
               )}
-            </Box>
+            </div>
 
-            <Typography variant="h6" component="h1" sx={{ flexGrow: 1, textAlign: 'center', fontWeight: 500 }}>
+            <h1 className="flex-grow text-center text-lg font-medium">
               Crispy Account
-            </Typography>
+            </h1>
 
-            <Box sx={{ width: 48, display: 'flex', justifyContent: 'center', gap: 1 }}>
+            <div className="w-16 flex justify-end gap-1">
               {isHome ? (
                 <>
-                  <IconButton color="inherit" aria-label="search">
+                  <Button isIconOnly variant="light" radius="full" aria-label="search">
                     <SearchIcon />
-                  </IconButton>
-                  <IconButton onClick={() => signOut()} color="inherit" aria-label="logout">
+                  </Button>
+                  <Button isIconOnly variant="light" radius="full" aria-label="logout" onPress={() => signOut()}>
                     <LogoutIcon />
-                  </IconButton>
+                  </Button>
                 </>
               ) : (
-                <Avatar src={avatarImg} alt="Avatar" sx={{ width: 32, height: 32, border: '2px solid', borderColor: 'primary.main' }} />
+                <Avatar src={avatarImg} alt="Avatar" size="sm" className="border-2 border-primary" />
               )}
-            </Box>
+            </div>
 
-          </Toolbar>
-        </Container>
-      </AppBar>
+          </nav>
+        </div>
+      </header>
 
-      <Container component="main" maxWidth="md" sx={{ flexGrow: 1, py: 4 }}>
+      <main className="max-w-4xl mx-auto w-full px-4 py-8 flex-grow">
         {children}
-      </Container>
-    </Box>
+      </main>
+    </div>
   )
 }

@@ -3,33 +3,22 @@ import { api } from '../../api/client'
 import { useState } from 'react'
 import type { Profile } from '../../api/types'
 import {
-  Box,
-  Typography,
   Button,
   Card,
-  List,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
   Avatar,
   Chip,
-  CircularProgress,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  FormControlLabel,
-  Checkbox
-} from '@mui/material'
+  Spinner,
+  Modal,
+  Input,
+} from '@heroui/react'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 
 const AVATAR_COLORS = [
-  { bg: 'rgba(26,115,232,0.15)', text: '#8ab4f8' },
-  { bg: 'rgba(167,51,255,0.15)', text: '#c58af9' },
-  { bg: 'rgba(208,24,132,0.15)', text: '#f28b82' },
-  { bg: 'rgba(227,116,0,0.15)', text: '#fcad70' },
-  { bg: 'rgba(52,168,83,0.15)', text: '#81c995' },
+  { bg: 'bg-primary/15', text: 'text-primary' },
+  { bg: 'bg-secondary/15', text: 'text-secondary' },
+  { bg: 'bg-danger/15', text: 'text-danger' },
+  { bg: 'bg-warning/15', text: 'text-warning' },
+  { bg: 'bg-success/15', text: 'text-success' },
 ]
 
 export function ProfilesPage() {
@@ -45,67 +34,66 @@ export function ProfilesPage() {
   const profiles: Profile[] = Array.isArray((data as any)?.profiles) ? (data as any).profiles : []
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, pt: 2 }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Typography variant="h5" sx={{ fontWeight: 500 }}>Profiles</Typography>
-        <Button onClick={() => setCreating(true)} variant="contained" size="small">
+    <div className="flex flex-col gap-6 pt-4">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-medium">Profiles</h1>
+        <Button className="bg-primary text-primary-foreground font-medium" onPress={() => setCreating(true)}>
           Add Profile
         </Button>
-      </Box>
+      </div>
 
       {isLoading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-          <CircularProgress />
-        </Box>
+        <div className="flex justify-center p-12">
+          <Spinner />
+        </div>
       ) : (
-        <Card variant="outlined">
-          <List disablePadding>
-            {profiles.map((p, idx) => {
-              const color = AVATAR_COLORS[idx % AVATAR_COLORS.length]
-              const initial = p.name ? p.name.charAt(0).toUpperCase() : 'P'
-              return (
-                <ListItemButton
-                  key={p.id}
-                  onClick={() => setEditing(p)}
-                  sx={{ py: 2, px: 3 }}
-                >
-                  <ListItemIcon>
-                    <Avatar sx={{ bgcolor: color.bg, color: color.text, width: 40, height: 40, fontWeight: 600 }}>
+        <Card>
+          <Card.Content className="p-0">
+            <div className="flex flex-col divide-y divide-default-100">
+              {profiles.map((p, idx) => {
+                const color = AVATAR_COLORS[idx % AVATAR_COLORS.length]
+                const initial = p.name ? p.name.charAt(0).toUpperCase() : 'P'
+                return (
+                  <div
+                    key={p.id}
+                    onClick={() => setEditing(p)}
+                    className="flex items-center gap-4 px-6 py-4 hover:bg-default-50 cursor-pointer transition-colors"
+                  >
+                    <div className={`shrink-0 flex items-center justify-center w-10 h-10 rounded-full font-semibold ${color.bg} ${color.text}`}>
                       {initial}
-                    </Avatar>
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Typography sx={{ fontWeight: 500, color: 'text.primary' }}>{p.name}</Typography>
+                    </div>
+                    
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-medium text-foreground">{p.name}</h3>
                         {p.isKids && (
-                          <Chip label="Kids" size="small" color="warning" variant="outlined" sx={{ height: 20, fontSize: '0.65rem' }} />
+                          <Chip size="sm" className="bg-warning/20 text-warning-700 text-[10px] h-5">Kids</Chip>
                         )}
-                      </Box>
-                    }
-                    secondary={
-                      <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                      </div>
+                      <p className="text-sm text-default-500 mt-0.5">
                         Language: {p.interfaceLanguage ?? 'en'}
-                        {p.region && <Box component="span" sx={{ ml: 1 }}>· Region: {p.region.toUpperCase()}</Box>}
-                      </Typography>
-                    }
-                  />
-                  <ChevronRightIcon color="action" />
-                </ListItemButton>
-              )
-            })}
+                        {p.region && <span className="ml-2">· Region: {p.region.toUpperCase()}</span>}
+                      </p>
+                    </div>
 
-            {profiles.length === 0 && (
-              <Box sx={{ p: 4, textAlign: 'center' }}>
-                <Typography variant="body2" color="text.secondary">No profiles created yet.</Typography>
-              </Box>
-            )}
-          </List>
+                    <ChevronRightIcon className="text-default-400" />
+                  </div>
+                )
+              })}
+
+              {profiles.length === 0 && (
+                <div className="p-8 text-center text-default-500">
+                  No profiles created yet.
+                </div>
+              )}
+            </div>
+          </Card.Content>
         </Card>
       )}
 
       {creating && (
         <ProfileFormModal
+          isOpen={creating}
           onClose={() => setCreating(false)}
           onSaved={() => {
             setCreating(false)
@@ -116,6 +104,7 @@ export function ProfilesPage() {
 
       {editing && (
         <ProfileFormModal
+          isOpen={!!editing}
           profile={editing}
           onClose={() => setEditing(null)}
           onSaved={() => {
@@ -124,15 +113,17 @@ export function ProfilesPage() {
           }}
         />
       )}
-    </Box>
+    </div>
   )
 }
 
 function ProfileFormModal({
+  isOpen,
   profile,
   onClose,
   onSaved,
 }: {
+  isOpen: boolean
   profile?: Profile
   onClose: () => void
   onSaved: () => void
@@ -173,62 +164,70 @@ function ProfileFormModal({
   }
 
   return (
-    <Dialog open onClose={onClose} fullWidth maxWidth="sm">
-      <form onSubmit={handleSubmit}>
-        <DialogTitle>{profile ? 'Edit Profile' : 'New Profile'}</DialogTitle>
-        <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
-          <TextField
-            autoFocus
-            label="Profile Name"
-            fullWidth
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-            placeholder="e.g. Family Room, Office"
-            margin="dense"
-          />
-          <Box sx={{ display: 'flex', gap: 2 }}>
-            <TextField
-              label="Language"
-              value={lang}
-              onChange={(e) => setLang(e.target.value)}
-              placeholder="en"
-              fullWidth
-            />
-            <TextField
-              label="Region"
-              value={region}
-              onChange={(e) => setRegion(e.target.value)}
-              placeholder="US"
-              fullWidth
-              slotProps={{ htmlInput: { style: { textTransform: 'uppercase' } } }}
-            />
-          </Box>
-          <FormControlLabel
-            control={
-              <Checkbox 
-                checked={kids} 
-                onChange={(e) => setKids(e.target.checked)} 
-                color="primary"
+    <Modal isOpen={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <Modal.Dialog>
+        <form onSubmit={handleSubmit}>
+          <Modal.Header>
+            <Modal.Heading>{profile ? 'Edit Profile' : 'New Profile'}</Modal.Heading>
+          </Modal.Header>
+          <Modal.Body className="flex flex-col gap-4">
+            
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-medium">Profile Name</label>
+              <Input
+                autoFocus
+                className="w-full bg-default-100 px-3 py-2 rounded-lg"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                placeholder="e.g. Family Room, Office"
               />
-            }
-            label={
-              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                <Typography variant="body2" sx={{ fontWeight: 500 }}>Kids Profile</Typography>
-                <Typography variant="caption" color="text.secondary">Filter mature content and enforce child ratings</Typography>
-              </Box>
-            }
-            sx={{ mt: 1, p: 1, border: 1, borderColor: 'divider', '&:hover': { bgcolor: 'action.hover' } }}
-          />
-          {error && <Typography variant="caption" color="error">{error}</Typography>}
-        </DialogContent>
-        <DialogActions sx={{ p: 3, pt: 0 }}>
-          <Button onClick={onClose} color="inherit">Cancel</Button>
-          <Button type="submit" variant="contained" disabled={createMut.isPending || updateMut.isPending}>
-            {profile ? 'Save' : 'Create'}
-          </Button>
-        </DialogActions>
-      </form>
-    </Dialog>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col gap-1 w-full">
+                <label className="text-sm font-medium">Language</label>
+                <Input
+                  className="w-full bg-default-100 px-3 py-2 rounded-lg"
+                  value={lang}
+                  onChange={(e) => setLang(e.target.value)}
+                  placeholder="en"
+                />
+              </div>
+              <div className="flex flex-col gap-1 w-full">
+                <label className="text-sm font-medium">Region</label>
+                <Input
+                  className="w-full bg-default-100 px-3 py-2 rounded-lg uppercase"
+                  value={region}
+                  onChange={(e) => setRegion(e.target.value)}
+                  placeholder="US"
+                />
+              </div>
+            </div>
+
+            <label className="flex items-start gap-3 p-4 border border-default-200 rounded-xl hover:bg-default-50 cursor-pointer mt-2 transition-colors">
+              <input
+                type="checkbox"
+                checked={kids}
+                onChange={(e) => setKids(e.target.checked)}
+                className="mt-1 w-4 h-4 text-primary bg-default-100 border-default-300 rounded focus:ring-primary"
+              />
+              <div className="flex flex-col">
+                <span className="font-medium text-sm">Kids Profile</span>
+                <span className="text-xs text-default-500">Filter mature content and enforce child ratings</span>
+              </div>
+            </label>
+
+            {error && <span className="text-sm text-danger">{error}</span>}
+          </Modal.Body>
+          <Modal.Footer>
+            <Button className="bg-default-100" onPress={onClose}>Cancel</Button>
+            <Button type="submit" className="bg-primary text-primary-foreground font-medium" isDisabled={createMut.isPending || updateMut.isPending}>
+              {profile ? 'Save' : 'Create'}
+            </Button>
+          </Modal.Footer>
+        </form>
+      </Modal.Dialog>
+    </Modal>
   )
 }

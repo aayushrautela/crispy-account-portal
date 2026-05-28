@@ -3,22 +3,13 @@ import { api } from '../../api/client'
 import { useState } from 'react'
 import type { ProviderState, ImportJob } from '../../api/types'
 import {
-  Box,
-  Typography,
   Button,
   Card,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
   Avatar,
   Chip,
-  CircularProgress,
+  Spinner,
   Accordion,
-  AccordionSummary,
-  AccordionDetails
-} from '@mui/material'
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+} from '@heroui/react'
 
 export function ProviderImportsPage() {
   const [selectedProfileId, setSelectedProfileId] = useState<string | null>(null)
@@ -34,30 +25,31 @@ export function ProviderImportsPage() {
   const selectedId = selectedProfileId ?? (profiles[0]?.id ?? null)
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, pt: 2 }}>
-      <Typography variant="h5" sx={{ fontWeight: 500 }}>Imports</Typography>
+    <div className="flex flex-col gap-6 pt-4">
+      <h1 className="text-2xl font-medium">Imports</h1>
 
       {/* Profile Filter Chips */}
       {profiles.length > 0 && (
-        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+        <div className="flex flex-wrap gap-2">
           {profiles.map((p) => {
             const isActive = selectedId === p.id
             return (
               <Chip
                 key={p.id}
-                label={p.name}
-                onClick={() => setSelectedProfileId(p.id)}
                 color={isActive ? 'primary' : 'default'}
-                variant={isActive ? 'filled' : 'outlined'}
-                sx={{ fontWeight: 500 }}
-              />
+                variant={isActive ? 'solid' : 'bordered'}
+                className="cursor-pointer font-medium"
+                onClick={() => setSelectedProfileId(p.id)}
+              >
+                {p.name}
+              </Chip>
             )
           })}
-        </Box>
+        </div>
       )}
 
       {selectedId && <ProviderImportView profileId={selectedId} />}
-    </Box>
+    </div>
   )
 }
 
@@ -99,9 +91,9 @@ function ProviderImportView({ profileId }: { profileId: string }) {
 
   if (isLoading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-        <CircularProgress />
-      </Box>
+      <div className="flex justify-center p-12">
+        <Spinner />
+      </div>
     )
   }
 
@@ -130,164 +122,153 @@ function ProviderImportView({ profileId }: { profileId: string }) {
   }
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+    <div className="flex flex-col gap-6">
       {/* Provider Connection Rows */}
-      <Card variant="outlined">
-        <List disablePadding>
-          {providerStates.map((ps) => {
-            const isConnected = ps.connectionState === 'connected'
-            const isPending = ps.connectionState === 'pending_authorization'
-            const providerStyle = PROVIDER_ICONS[ps.provider] || {
-              bg: '#5f6368',
-              icon: (
-                <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" />
-                </svg>
-              ),
-            }
+      <Card>
+        <Card.Content className="p-0">
+          <div className="flex flex-col divide-y divide-default-100">
+            {providerStates.map((ps) => {
+              const isConnected = ps.connectionState === 'connected'
+              const isPending = ps.connectionState === 'pending_authorization'
+              const providerStyle = PROVIDER_ICONS[ps.provider] || {
+                bg: '#5f6368',
+                icon: (
+                  <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" />
+                  </svg>
+                ),
+              }
 
-            return (
-              <ListItem
-                key={ps.provider}
-                sx={{ py: 2, px: 3, display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'flex-start', sm: 'center' }, gap: 2 }}
-              >
-                <ListItemIcon sx={{ minWidth: 0, mr: 2 }}>
-                  <Avatar sx={{ bgcolor: providerStyle.bg, width: 40, height: 40 }}>
+              return (
+                <div
+                  key={ps.provider}
+                  className="flex flex-col sm:flex-row items-start sm:items-center gap-4 px-6 py-4"
+                >
+                  <div className="shrink-0 flex items-center justify-center w-10 h-10 rounded-full text-white" style={{ backgroundColor: providerStyle.bg }}>
                     {providerStyle.icon}
-                  </Avatar>
-                </ListItemIcon>
-                
-                <ListItemText
-                  primary={
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Typography sx={{ fontWeight: 500, textTransform: 'capitalize' }}>
-                        {ps.provider}
-                      </Typography>
+                  </div>
+                  
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-medium capitalize text-foreground">{ps.provider}</h3>
                       <Chip 
-                        label={ps.connectionState?.replace('_', ' ') || 'disconnected'} 
-                        size="small" 
+                        size="sm" 
                         color={isConnected ? 'success' : isPending ? 'warning' : 'default'}
-                        variant={isConnected || isPending ? 'outlined' : 'filled'}
-                        sx={{ height: 20, fontSize: '0.65rem' }}
-                      />
-                    </Box>
-                  }
-                  secondary={
-                    <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                        variant={isConnected || isPending ? 'bordered' : 'solid'}
+                        className="h-5 text-[10px]"
+                      >
+                        {ps.connectionState?.replace('_', ' ') || 'disconnected'}
+                      </Chip>
+                    </div>
+                    <p className="text-sm text-default-500 mt-0.5 truncate">
                       {ps.statusLabel}
                       {ps.externalUsername && (
-                        <Box component="span" sx={{ ml: 1 }}>
-                          as <Typography component="span" sx={{ fontWeight: 500 }} color="text.primary">{ps.externalUsername}</Typography>
-                        </Box>
+                        <span className="ml-1">
+                          as <span className="font-medium text-foreground">{ps.externalUsername}</span>
+                        </span>
                       )}
-                    </Typography>
-                  }
-                  sx={{ flex: 1, m: 0 }}
-                />
+                    </p>
+                  </div>
 
-                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: { xs: 1, sm: 0 } }}>
-                  {ps.canImport && (
-                    <Button
-                      variant="contained"
-                      size="small"
-                      disabled={connectMut.isPending}
-                      onClick={() => connectMut.mutate({ provider: ps.provider, action: 'import' })}
-                    >
-                      Import
-                    </Button>
-                  )}
-                  {ps.canReconnect && (
-                    <Button
-                      variant="outlined"
-                      size="small"
-                      disabled={connectMut.isPending}
-                      onClick={() => connectMut.mutate({ provider: ps.provider, action: 'reconnect' })}
-                    >
-                      Reconnect
-                    </Button>
-                  )}
-                  {ps.primaryAction === 'connect' && (
-                    <Button
-                      variant="outlined"
-                      size="small"
-                      disabled={connectMut.isPending}
-                      onClick={() => connectMut.mutate({ provider: ps.provider, action: 'connect' })}
-                    >
-                      Connect
-                    </Button>
-                  )}
-                  {ps.canDisconnect && (
-                    <Button
-                      variant="text"
-                      color="error"
-                      size="small"
-                      disabled={disconnectMut.isPending}
-                      onClick={() => disconnectMut.mutate(ps.provider)}
-                    >
-                      Disconnect
-                    </Button>
-                  )}
-                </Box>
-              </ListItem>
-            )
-          })}
-          {providerStates.length === 0 && (
-            <Box sx={{ p: 4, textAlign: 'center' }}>
-              <Typography variant="body2" color="text.secondary">No providers available.</Typography>
-            </Box>
-          )}
-        </List>
+                  <div className="flex flex-wrap gap-2 mt-2 sm:mt-0">
+                    {ps.canImport && (
+                      <Button
+                        className="bg-primary text-primary-foreground font-medium"
+                        size="sm"
+                        isDisabled={connectMut.isPending}
+                        onPress={() => connectMut.mutate({ provider: ps.provider, action: 'import' })}
+                      >
+                        Import
+                      </Button>
+                    )}
+                    {ps.canReconnect && (
+                      <Button
+                        className="border border-default-200 bg-transparent text-default-700"
+                        size="sm"
+                        isDisabled={connectMut.isPending}
+                        onPress={() => connectMut.mutate({ provider: ps.provider, action: 'reconnect' })}
+                      >
+                        Reconnect
+                      </Button>
+                    )}
+                    {ps.primaryAction === 'connect' && (
+                      <Button
+                        className="border border-default-200 bg-transparent text-default-700"
+                        size="sm"
+                        isDisabled={connectMut.isPending}
+                        onPress={() => connectMut.mutate({ provider: ps.provider, action: 'connect' })}
+                      >
+                        Connect
+                      </Button>
+                    )}
+                    {ps.canDisconnect && (
+                      <Button
+                        className="bg-transparent text-danger"
+                        size="sm"
+                        isDisabled={disconnectMut.isPending}
+                        onPress={() => disconnectMut.mutate(ps.provider)}
+                      >
+                        Disconnect
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
+            {providerStates.length === 0 && (
+              <div className="p-8 text-center text-default-500">
+                No providers available.
+              </div>
+            )}
+          </div>
+        </Card.Content>
       </Card>
 
       {/* Import History */}
       {jobs.length > 0 && (
-        <Accordion variant="outlined" sx={{ '&:before': { display: 'none' } }}>
-          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Typography sx={{ fontWeight: 500 }}>Import History</Typography>
-              <Chip label={jobs.length.toString()} size="small" sx={{ height: 20, fontSize: '0.7rem' }} />
-            </Box>
-          </AccordionSummary>
-          <AccordionDetails sx={{ p: 0 }}>
-            <List disablePadding>
-              {jobs.slice(0, 20).map((job) => {
-                const isSuccess = job.status === 'succeeded'
-                const isFailed = job.status === 'failed'
-                const isRunning = job.status === 'running'
+        <Accordion className="bg-content1 rounded-xl border border-default-200">
+          <Accordion.Item>
+            <Accordion.Heading>
+              <Accordion.Trigger className="flex items-center gap-2 px-4 py-3">
+                <span className="font-medium">Import History</span>
+                <Chip size="sm" className="bg-default-100">{jobs.length}</Chip>
+              </Accordion.Trigger>
+            </Accordion.Heading>
+            <Accordion.Panel>
+              <div className="flex flex-col divide-y divide-default-100 border-t border-default-100">
+                {jobs.slice(0, 20).map((job) => {
+                  const isSuccess = job.status === 'succeeded'
+                  const isFailed = job.status === 'failed'
+                  const isRunning = job.status === 'running'
 
-                return (
-                  <ListItem key={job.id} sx={{ px: 3, py: 1.5 }}>
-                    <ListItemIcon sx={{ minWidth: 32 }}>
-                      <Box 
-                        sx={{ 
-                          width: 10, 
-                          height: 10, 
-                          borderRadius: '50%', 
-                          bgcolor: isSuccess ? 'success.main' : isFailed ? 'error.main' : isRunning ? 'primary.main' : 'text.disabled',
-                          animation: isRunning ? 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' : 'none',
-                          '@keyframes pulse': {
-                            '0%, 100%': { opacity: 1 },
-                            '50%': { opacity: .5 }
-                          }
-                        }} 
-                      />
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={<Typography sx={{ fontSize: '0.875rem' }}>{job.provider} sync</Typography>}
-                      secondary={
-                        job.errorMessage ? <Typography variant="caption" color="error">{job.errorMessage}</Typography> : null
-                      }
-                    />
-                    <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'capitalize' }}>
-                      {job.status}
-                    </Typography>
-                  </ListItem>
-                )
-              })}
-            </List>
-          </AccordionDetails>
+                  return (
+                    <div key={job.id} className="flex items-center gap-4 px-4 py-3">
+                      <div className="shrink-0 w-8 flex justify-center">
+                        <div 
+                          className={`w-2.5 h-2.5 rounded-full ${
+                            isSuccess ? 'bg-success' : isFailed ? 'bg-danger' : isRunning ? 'bg-primary animate-pulse' : 'bg-default-300'
+                          }`}
+                        />
+                      </div>
+                      
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">{job.provider} sync</p>
+                        {job.errorMessage && (
+                          <p className="text-xs text-danger mt-0.5">{job.errorMessage}</p>
+                        )}
+                      </div>
+                      
+                      <span className="text-xs text-default-500 capitalize">
+                        {job.status}
+                      </span>
+                    </div>
+                  )
+                })}
+              </div>
+            </Accordion.Panel>
+          </Accordion.Item>
         </Accordion>
       )}
-    </Box>
+    </div>
   )
 }

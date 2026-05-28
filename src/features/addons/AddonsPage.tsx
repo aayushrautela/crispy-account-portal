@@ -2,24 +2,14 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { api } from '../../api/client'
 import { useState } from 'react'
 import {
-  Box,
-  Typography,
   Button,
   Card,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  Avatar,
   Chip,
-  CircularProgress,
-  TextField,
+  Spinner,
+  Input,
   Accordion,
-  AccordionSummary,
-  AccordionDetails
-} from '@mui/material'
+} from '@heroui/react'
 import ExtensionIcon from '@mui/icons-material/Extension'
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 
 const INITIAL_SHOW = 4
 
@@ -64,80 +54,86 @@ export function AddonsPage() {
   }
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, pt: 2 }}>
-      <Typography variant="h5" sx={{ fontWeight: 500 }}>Add-ons</Typography>
+    <div className="flex flex-col gap-6 pt-4">
+      <h1 className="text-2xl font-medium">Add-ons</h1>
 
       {isLoading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-          <CircularProgress />
-        </Box>
+        <div className="flex justify-center p-12">
+          <Spinner />
+        </div>
       ) : (
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+        <div className="flex flex-col gap-6">
           {/* Add-on Input */}
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-            <Box sx={{ display: 'flex', gap: 2, flexDirection: { xs: 'column', sm: 'row' } }}>
-              <TextField
-                size="small"
-                fullWidth
+          <div className="flex flex-col gap-2">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Input
+                className="w-full bg-default-100 px-3 py-2 rounded-lg"
                 placeholder="Manifest URL"
                 value={manifestUrl}
                 onChange={(e) => setManifestUrl(e.target.value)}
               />
               <Button 
-                variant="contained"
-                onClick={handleAdd}
-                disabled={saveMut.isPending || !manifestUrl.trim()}
-                sx={{ minWidth: 100 }}
+                className="bg-primary text-primary-foreground font-medium shrink-0 h-auto py-2"
+                onPress={handleAdd}
+                isDisabled={saveMut.isPending || !manifestUrl.trim()}
               >
-                Add
+                Add Add-on
               </Button>
-            </Box>
-            {error && <Typography variant="caption" color="error">{error}</Typography>}
-          </Box>
+            </div>
+            {error && <span className="text-sm text-danger">{error}</span>}
+          </div>
 
           {/* Addons List */}
           {addons.length === 0 ? (
-            <Card variant="outlined" sx={{ py: 6, textAlign: 'center' }}>
-              <Typography variant="body2" color="text.secondary">No add-ons installed yet.</Typography>
+            <Card className="py-12">
+              <Card.Content className="flex justify-center items-center text-default-500">
+                No add-ons installed yet.
+              </Card.Content>
             </Card>
           ) : addons.length <= INITIAL_SHOW ? (
-            <Card variant="outlined">
-              <List disablePadding>
-                {addons.map((addon, i) => (
-                  <AddonRow key={i} addon={addon} index={i} onToggle={handleToggle} onRemove={handleRemove} />
-                ))}
-              </List>
-            </Card>
-          ) : (
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              <Card variant="outlined">
-                <List disablePadding>
-                  {addons.slice(0, INITIAL_SHOW).map((addon, i) => (
+            <Card>
+              <Card.Content className="p-0">
+                <div className="flex flex-col divide-y divide-default-100">
+                  {addons.map((addon, i) => (
                     <AddonRow key={i} addon={addon} index={i} onToggle={handleToggle} onRemove={handleRemove} />
                   ))}
-                </List>
+                </div>
+              </Card.Content>
+            </Card>
+          ) : (
+            <div className="flex flex-col gap-4">
+              <Card>
+                <Card.Content className="p-0">
+                  <div className="flex flex-col divide-y divide-default-100">
+                    {addons.slice(0, INITIAL_SHOW).map((addon, i) => (
+                      <AddonRow key={i} addon={addon} index={i} onToggle={handleToggle} onRemove={handleRemove} />
+                    ))}
+                  </div>
+                </Card.Content>
               </Card>
               
-              <Accordion variant="outlined" sx={{ '&:before': { display: 'none' } }}>
-                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Typography sx={{ fontWeight: 500 }}>Show more</Typography>
-                    <Chip label={(addons.length - INITIAL_SHOW).toString()} size="small" sx={{ height: 20, fontSize: '0.7rem' }} />
-                  </Box>
-                </AccordionSummary>
-                <AccordionDetails sx={{ p: 0 }}>
-                  <List disablePadding>
-                    {addons.slice(INITIAL_SHOW).map((addon, i) => (
-                      <AddonRow key={i + INITIAL_SHOW} addon={addon} index={i + INITIAL_SHOW} onToggle={handleToggle} onRemove={handleRemove} />
-                    ))}
-                  </List>
-                </AccordionDetails>
+              <Accordion className="bg-content1 rounded-xl shadow-sm border border-default-200">
+                <Accordion.Item>
+                  <Accordion.Heading>
+                    <Accordion.Trigger className="flex items-center gap-2 p-4">
+                      <span className="font-medium">Show more</span>
+                      <Chip size="sm" className="bg-default-100">{addons.length - INITIAL_SHOW}</Chip>
+                    </Accordion.Trigger>
+                  </Accordion.Heading>
+                  <Accordion.Panel>
+                    <div className="flex flex-col divide-y divide-default-100 border-t border-default-100">
+                      {addons.slice(INITIAL_SHOW).map((addon, i) => (
+                        <AddonRow key={i + INITIAL_SHOW} addon={addon} index={i + INITIAL_SHOW} onToggle={handleToggle} onRemove={handleRemove} />
+                      ))}
+                    </div>
+                  </Accordion.Panel>
+                </Accordion.Item>
               </Accordion>
-            </Box>
+            </div>
           )}
-        </Box>
+        </div>
       )}
-    </Box>
+    </div>
   )
 }
 
@@ -156,39 +152,43 @@ function AddonRow({
   const url = String(addon.manifestUrl ?? '')
 
   return (
-    <ListItem sx={{ py: 2, px: 3, display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'flex-start', sm: 'center' }, gap: 2 }}>
-      <ListItemIcon sx={{ minWidth: 0, mr: 2 }}>
-        <Avatar sx={{ bgcolor: 'warning.main', width: 40, height: 40, color: '#fff' }}>
-          <ExtensionIcon />
-        </Avatar>
-      </ListItemIcon>
+    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 px-6 py-4">
+      <div className="shrink-0 flex items-center justify-center w-10 h-10 rounded-full bg-warning text-white">
+        <ExtensionIcon />
+      </div>
       
-      <ListItemText
-        primary={
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0 }}>
-            <Typography sx={{ fontSize: '0.875rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: { xs: '100%', sm: 300, md: 400 } }}>
-              {url}
-            </Typography>
-            <Chip 
-              label={isEnabled ? 'on' : 'off'} 
-              size="small" 
-              color={isEnabled ? 'success' : 'default'}
-              variant={isEnabled ? 'outlined' : 'filled'}
-              sx={{ height: 20, fontSize: '0.65rem', flexShrink: 0 }}
-            />
-          </Box>
-        }
-        sx={{ flex: 1, m: 0, minWidth: 0 }}
-      />
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2">
+          <p className="text-sm font-medium truncate max-w-[200px] sm:max-w-md">
+            {url}
+          </p>
+          <Chip 
+            size="sm" 
+            color={isEnabled ? 'success' : 'default'}
+            variant={isEnabled ? 'bordered' : 'solid'}
+            className="h-5 text-[10px]"
+          >
+            {isEnabled ? 'on' : 'off'}
+          </Chip>
+        </div>
+      </div>
 
-      <Box sx={{ display: 'flex', gap: 1, flexShrink: 0, mt: { xs: 1, sm: 0 } }}>
-        <Button variant="outlined" size="small" onClick={() => onToggle(index)} color="inherit">
+      <div className="flex gap-2 mt-2 sm:mt-0">
+        <Button 
+          className="border border-default-200 bg-transparent text-default-700" 
+          size="sm" 
+          onPress={() => onToggle(index)}
+        >
           {isEnabled ? 'Disable' : 'Enable'}
         </Button>
-        <Button variant="outlined" size="small" onClick={() => onRemove(index)} color="inherit">
+        <Button 
+          className="border border-default-200 bg-transparent text-danger" 
+          size="sm" 
+          onPress={() => onRemove(index)}
+        >
           Remove
         </Button>
-      </Box>
-    </ListItem>
+      </div>
+    </div>
   )
 }

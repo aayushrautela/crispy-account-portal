@@ -4,18 +4,11 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../auth/useSession'
 import { 
-  Box, 
   Card, 
-  List, 
-  ListItemButton, 
-  ListItemIcon, 
-  ListItemText, 
   Avatar, 
-  Typography, 
-  Collapse,
-  TextField,
-  Button
-} from '@mui/material'
+  Button,
+  Input
+} from '@heroui/react'
 import VpnKeyIcon from '@mui/icons-material/VpnKey'
 import MovieIcon from '@mui/icons-material/Movie'
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -26,34 +19,38 @@ export function AccountSettingsPage() {
   const navigate = useNavigate()
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, pt: 2 }}>
-      <Typography variant="h5" sx={{ fontWeight: 500 }}>Account</Typography>
+    <div className="flex flex-col gap-6 pt-4">
+      <h1 className="text-2xl font-medium">Account</h1>
 
-      <Card variant="outlined">
-        <List disablePadding>
-          <ApiKeyRow
-            provider="openrouter"
-            title="OpenRouter API Key"
-            subtitle="Routes LLM requests via secure endpoints"
-            iconBg="#1a73e8"
-            icon={<VpnKeyIcon />}
-          />
-          <ApiKeyRow
-            provider="mdblist"
-            title="MDBList API Key"
-            subtitle="Movie metadata, ratings, and filters"
-            iconBg="#e37400"
-            icon={<MovieIcon />}
-          />
-        </List>
+      <Card>
+        <Card.Content className="p-0">
+          <div className="flex flex-col divide-y divide-default-100">
+            <ApiKeyRow
+              provider="openrouter"
+              title="OpenRouter API Key"
+              subtitle="Routes LLM requests via secure endpoints"
+              iconBg="#1a73e8"
+              icon={<VpnKeyIcon />}
+            />
+            <ApiKeyRow
+              provider="mdblist"
+              title="MDBList API Key"
+              subtitle="Movie metadata, ratings, and filters"
+              iconBg="#e37400"
+              icon={<MovieIcon />}
+            />
+          </div>
+        </Card.Content>
       </Card>
 
-      <Card variant="outlined" sx={{ borderColor: 'error.main' }}>
-        <List disablePadding>
-          <DeleteAccountRow signOut={signOut} navigate={navigate} />
-        </List>
+      <Card className="border-danger/30">
+        <Card.Content className="p-0">
+          <div className="flex flex-col divide-y divide-default-100">
+            <DeleteAccountRow signOut={signOut} navigate={navigate} />
+          </div>
+        </Card.Content>
       </Card>
-    </Box>
+    </div>
   )
 }
 
@@ -96,55 +93,53 @@ function ApiKeyRow({
   const statusText = isLoading ? 'Checking...' : secret?.present ? `Present (${secret.fingerprint})` : 'Not configured'
 
   return (
-    <>
-      <ListItemButton onClick={() => setExpanded(!expanded)} sx={{ py: 2, px: 3 }}>
-        <ListItemIcon>
-          <Avatar sx={{ bgcolor: iconBg, width: 40, height: 40, color: '#fff' }}>
-            {icon}
-          </Avatar>
-        </ListItemIcon>
-        <ListItemText 
-          primary={<Typography sx={{ fontWeight: 500, color: 'text.primary' }}>{title}</Typography>}
-          secondary={<Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>{statusText}</Typography>}
-        />
-        <ExpandMoreIcon sx={{ transform: expanded ? 'rotate(180deg)' : 'none', transition: '0.2s' }} />
-      </ListItemButton>
+    <div className="flex flex-col">
+      <div 
+        onClick={() => setExpanded(!expanded)} 
+        className="flex items-center gap-4 px-6 py-4 hover:bg-default-100 cursor-pointer transition-colors"
+      >
+        <div className="shrink-0 flex items-center justify-center w-10 h-10 rounded-full text-white" style={{ backgroundColor: iconBg }}>
+          {icon}
+        </div>
+        <div className="flex-1">
+          <h3 className="font-medium text-foreground">{title}</h3>
+          <p className="text-sm text-default-500 mt-0.5">{statusText}</p>
+        </div>
+        <ExpandMoreIcon className={`text-default-400 transition-transform ${expanded ? 'rotate-180' : ''}`} />
+      </div>
 
-      <Collapse in={expanded} timeout="auto" unmountOnExit>
-        <Box sx={{ px: 3, pb: 3, display: 'flex', flexDirection: 'column', gap: 2 }}>
+      {expanded && (
+        <div className="px-6 pb-6 pt-2 flex flex-col gap-4">
           {secret?.present && (
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <div className="flex justify-end">
               <Button 
-                color="error" 
-                size="small" 
-                disabled={delMut.isPending} 
-                onClick={() => delMut.mutate()}
+                className="bg-danger/10 text-danger" 
+                size="sm" 
+                isDisabled={delMut.isPending} 
+                onPress={() => delMut.mutate()}
               >
                 Remove
               </Button>
-            </Box>
+            </div>
           )}
-          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
-            <TextField
-              size="small"
-              fullWidth
+          <div className="flex flex-col sm:flex-row gap-4">
+            <Input
+              className="w-full bg-default-100 px-3 py-2 rounded-lg font-mono text-sm"
               placeholder={provider === 'openrouter' ? 'sk-or-...' : 'Enter MDBList key'}
               value={value}
               onChange={(e) => setValue(e.target.value)}
-              slotProps={{ input: { sx: { fontFamily: 'monospace' } } }}
             />
             <Button 
-              variant="contained" 
-              disabled={!value.trim() || putMut.isPending} 
-              onClick={() => value.trim() && putMut.mutate(value.trim())}
-              sx={{ minWidth: 100 }}
+              className="bg-primary text-primary-foreground font-medium shrink-0" 
+              isDisabled={!value.trim() || putMut.isPending} 
+              onPress={() => value.trim() && putMut.mutate(value.trim())}
             >
               Save
             </Button>
-          </Box>
-        </Box>
-      </Collapse>
-    </>
+          </div>
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -169,54 +164,52 @@ function DeleteAccountRow({
   })
 
   return (
-    <>
-      <ListItemButton onClick={() => setConfirming(!confirming)} sx={{ py: 2, px: 3 }}>
-        <ListItemIcon>
-          <Avatar sx={{ bgcolor: 'error.main', width: 40, height: 40, color: '#fff' }}>
-            <DeleteIcon />
-          </Avatar>
-        </ListItemIcon>
-        <ListItemText 
-          primary={<Typography sx={{ fontWeight: 500, color: 'error.main' }}>Delete account</Typography>}
-          secondary={<Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>Permanently delete your account and all data</Typography>}
-        />
-        <ExpandMoreIcon sx={{ transform: confirming ? 'rotate(180deg)' : 'none', transition: '0.2s' }} />
-      </ListItemButton>
+    <div className="flex flex-col">
+      <div 
+        onClick={() => setConfirming(!confirming)} 
+        className="flex items-center gap-4 px-6 py-4 hover:bg-danger-50 cursor-pointer transition-colors"
+      >
+        <div className="shrink-0 flex items-center justify-center w-10 h-10 rounded-full bg-danger text-white">
+          <DeleteIcon />
+        </div>
+        <div className="flex-1">
+          <h3 className="font-medium text-danger">Delete account</h3>
+          <p className="text-sm text-default-500 mt-0.5">Permanently delete your account and all data</p>
+        </div>
+        <ExpandMoreIcon className={`text-default-400 transition-transform ${confirming ? 'rotate-180' : ''}`} />
+      </div>
 
-      <Collapse in={confirming} timeout="auto" unmountOnExit>
-        <Box sx={{ px: 3, pb: 3, display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <Typography variant="body2" color="text.secondary">
-            This is permanent. Type <Typography component="span" color="error.main" sx={{ fontWeight: 'bold' }}>DELETE</Typography> to confirm.
-          </Typography>
-          <TextField
-            size="small"
+      {confirming && (
+        <div className="px-6 pb-6 pt-2 flex flex-col gap-4 border-t border-danger/10 mt-2">
+          <p className="text-sm text-default-500">
+            This is permanent. Type <span className="text-danger font-bold">DELETE</span> to confirm.
+          </p>
+          <Input
+            className="w-full bg-default-100 px-3 py-2 rounded-lg font-mono text-sm"
             value={confirmText}
             onChange={(e) => setConfirmText(e.target.value)}
             placeholder="DELETE"
-            slotProps={{ input: { sx: { fontFamily: 'monospace' } } }}
           />
-          <Box sx={{ display: 'flex', gap: 2 }}>
+          <div className="flex gap-4">
             <Button
-              variant="contained"
-              color="error"
-              disabled={confirmText !== 'DELETE' || delMut.isPending}
-              onClick={() => delMut.mutate()}
+              className="bg-danger text-danger-foreground font-medium"
+              isDisabled={confirmText !== 'DELETE' || delMut.isPending}
+              onPress={() => delMut.mutate()}
             >
               Delete Permanently
             </Button>
             <Button
-              variant="outlined"
-              color="inherit"
-              onClick={() => {
+              className="bg-transparent text-default-700 border border-default-200"
+              onPress={() => {
                 setConfirming(false)
                 setConfirmText('')
               }}
             >
               Cancel
             </Button>
-          </Box>
-        </Box>
-      </Collapse>
-    </>
+          </div>
+        </div>
+      )}
+    </div>
   )
 }

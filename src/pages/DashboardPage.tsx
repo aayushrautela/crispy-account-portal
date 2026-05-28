@@ -2,17 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
 import avatarImg from '../assets/avatar.png'
-import { 
-  Box, 
-  Card, 
-  List, 
-  ListItemButton, 
-  ListItemIcon, 
-  ListItemText, 
-  Avatar, 
-  Typography, 
-  CircularProgress 
-} from '@mui/material'
+import { Card, Avatar, Spinner } from '@heroui/react'
 import PersonIcon from '@mui/icons-material/Person'
 import SecurityIcon from '@mui/icons-material/Security'
 import GroupIcon from '@mui/icons-material/Group'
@@ -34,18 +24,19 @@ function Row({
   onClick: () => void
 }) {
   return (
-    <ListItemButton onClick={onClick} sx={{ py: 2, px: 3 }}>
-      <ListItemIcon>
-        <Avatar sx={{ bgcolor: iconBg, width: 40, height: 40, color: '#fff' }}>
-          {icon}
-        </Avatar>
-      </ListItemIcon>
-      <ListItemText 
-        primary={<Typography sx={{ fontWeight: 500, color: 'text.primary' }}>{title}</Typography>} 
-        secondary={<Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>{subtitle}</Typography>}
-      />
-      <ChevronRightIcon color="action" />
-    </ListItemButton>
+    <div 
+      onClick={onClick}
+      className="flex items-center gap-4 px-6 py-4 hover:bg-default-100 cursor-pointer transition-colors"
+    >
+      <div className="shrink-0 flex items-center justify-center w-10 h-10 rounded-full text-white" style={{ backgroundColor: iconBg }}>
+        {icon}
+      </div>
+      <div className="flex-1">
+        <h3 className="font-medium text-foreground">{title}</h3>
+        <p className="text-sm text-default-500 mt-0.5">{subtitle}</p>
+      </div>
+      <ChevronRightIcon className="text-default-400" />
+    </div>
   )
 }
 
@@ -59,17 +50,17 @@ export function DashboardPage() {
 
   if (isLoading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', p: 6 }}>
-        <CircularProgress />
-      </Box>
+      <div className="flex justify-center p-12">
+        <Spinner />
+      </div>
     )
   }
   
   if (!me) {
     return (
-      <Box sx={{ p: 6 }}>
-        <Typography color="text.secondary">Failed to load.</Typography>
-      </Box>
+      <div className="p-12">
+        <p className="text-default-500 text-center">Failed to load.</p>
+      </div>
     )
   }
 
@@ -79,74 +70,80 @@ export function DashboardPage() {
   const profileCount = Array.isArray(profiles) ? profiles.length : 0
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, pt: 2 }}>
+    <div className="flex flex-col gap-6 pt-4">
       
       {/* User Profile — matches Google Account profile block */}
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, pb: 1 }}>
-        <Avatar src={avatarImg} alt="Avatar" sx={{ width: 64, height: 64, border: '2px solid', borderColor: 'primary.main' }} />
-        <Box sx={{ flex: 1, minWidth: 0 }}>
-          <Typography variant="h5" sx={{ fontWeight: 500, textTransform: 'capitalize' }} noWrap>
+      <div className="flex items-center gap-4 pb-2">
+        <Avatar src={avatarImg} alt="Avatar" className="w-16 h-16 border-2 border-primary" />
+        <div className="flex-1 min-w-0">
+          <h2 className="text-2xl font-medium capitalize truncate">
             {userName}
-          </Typography>
-          <Typography variant="body2" color="text.secondary" noWrap>
+          </h2>
+          <p className="text-default-500 truncate">
             {userEmail}
-          </Typography>
-        </Box>
-      </Box>
+          </p>
+        </div>
+      </div>
 
       {/* Account group */}
-      <Card variant="outlined">
-        <List disablePadding>
-          <Row
-            icon={<PersonIcon />}
-            iconBg="#34a853"
-            title="Personal info"
-            subtitle="Name, email, API keys, and account settings"
-            onClick={() => navigate('/account')}
-          />
-          <Row
-            icon={<SecurityIcon />}
-            iconBg="#1a73e8"
-            title="Security & sign-in"
-            subtitle="Password, API tokens, and security settings"
-            onClick={() => navigate('/api-keys')}
-          />
-        </List>
+      <Card>
+        <Card.Content className="p-0">
+          <div className="flex flex-col divide-y divide-default-100">
+            <Row
+              icon={<PersonIcon />}
+              iconBg="#34a853"
+              title="Personal info"
+              subtitle="Name, email, API keys, and account settings"
+              onClick={() => navigate('/account')}
+            />
+            <Row
+              icon={<SecurityIcon />}
+              iconBg="#1a73e8"
+              title="Security & sign-in"
+              subtitle="Password, API tokens, and security settings"
+              onClick={() => navigate('/api-keys')}
+            />
+          </div>
+        </Card.Content>
       </Card>
 
       {/* Data group */}
-      <Card variant="outlined">
-        <List disablePadding>
-          <Row
-            icon={<GroupIcon />}
-            iconBg="#a733ff"
-            title="Profiles"
-            subtitle={`${profileCount} profile(s) — name, language, region`}
-            onClick={() => navigate('/profiles')}
-          />
-          <Row
-            icon={<SyncIcon />}
-            iconBg="#d01884"
-            title="Imports & syncing"
-            subtitle="Connect Trakt, Simkl, and manage import jobs"
-            onClick={() => navigate('/provider-imports')}
-          />
-        </List>
+      <Card>
+        <Card.Content className="p-0">
+          <div className="flex flex-col divide-y divide-default-100">
+            <Row
+              icon={<GroupIcon />}
+              iconBg="#a733ff"
+              title="Profiles"
+              subtitle={`${profileCount} profile(s) — name, language, region`}
+              onClick={() => navigate('/profiles')}
+            />
+            <Row
+              icon={<SyncIcon />}
+              iconBg="#d01884"
+              title="Imports & syncing"
+              subtitle="Connect Trakt, Simkl, and manage import jobs"
+              onClick={() => navigate('/provider-imports')}
+            />
+          </div>
+        </Card.Content>
       </Card>
 
       {/* Extensions group */}
-      <Card variant="outlined">
-        <List disablePadding>
-          <Row
-            icon={<ExtensionIcon />}
-            iconBg="#e37400"
-            title="Add-ons"
-            subtitle="Install and manage third-party extensions"
-            onClick={() => navigate('/addons')}
-          />
-        </List>
+      <Card>
+        <Card.Content className="p-0">
+          <div className="flex flex-col divide-y divide-default-100">
+            <Row
+              icon={<ExtensionIcon />}
+              iconBg="#e37400"
+              title="Add-ons"
+              subtitle="Install and manage third-party extensions"
+              onClick={() => navigate('/addons')}
+            />
+          </div>
+        </Card.Content>
       </Card>
 
-    </Box>
+    </div>
   )
 }
