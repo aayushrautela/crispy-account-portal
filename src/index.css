@@ -1,1 +1,40 @@
 @import "tailwindcss";
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@theme {
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-display: "Outfit", sans-serif;
+  
+  --color-m3-bg: #131314;
+  --color-m3-surface: #1e1f20;
+  --color-m3-hover: #2a2b2d;
+  --color-m3-border: #3c4043;
+  --color-m3-green: #34a853;
+  --color-m3-blue: #1a73e8;
+  --color-m3-purple: #a733ff;
+  --color-m3-pink: #d01884;
+  --color-m3-orange: #e37400;
+}
+
+body {
+  background-color: var(--color-m3-bg);
+  color: #e3e3e3;
+  font-family: var(--font-sans);
+}
+
+/* Custom scrollbar to match M3 dark theme */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-m3-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: #3c4043;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #4f5357;
+}

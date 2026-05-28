@@ -13,11 +13,19 @@ export function AccountSettingsPage() {
   const navigate = useNavigate()
 
   return (
-    <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-semibold">Account Settings</h1>
-      <OpenRouterKeySection />
-      <MdbListKeySection />
-      <DeleteAccountSection signOut={signOut} navigate={navigate} />
+    <div className="flex flex-col gap-8 max-w-3xl">
+      <div className="flex flex-col gap-2">
+        <h1 className="text-2xl font-semibold tracking-wide font-display text-stone-100">Account Settings</h1>
+        <p className="text-sm text-stone-400 font-sans tracking-wide">
+          Manage your credentials, custom AI gateway keys, database keys, and account standing.
+        </p>
+      </div>
+
+      <div className="flex flex-col gap-6">
+        <OpenRouterKeySection />
+        <MdbListKeySection />
+        <DeleteAccountSection signOut={signOut} navigate={navigate} />
+      </div>
     </div>
   )
 }
@@ -35,7 +43,10 @@ function OpenRouterKeySection() {
 
   const putMut = useMutation({
     mutationFn: async (v: string) => api.secrets.ai.put(v),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['secret', 'ai'] }); setValue('') },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['secret', 'ai'] })
+      setValue('')
+    },
   })
 
   const delMut = useMutation({
@@ -44,30 +55,55 @@ function OpenRouterKeySection() {
   })
 
   return (
-    <Card>
-      <h2 className="text-sm font-medium text-stone-400 mb-3">OpenRouter API Key</h2>
-      {isLoading ? <Spinner /> : (
-        <>
-          <p className="text-xs text-stone-500 mb-3">
-            {secret?.present ? `Present (fingerprint: ${secret.fingerprint})` : 'Not set'}
-          </p>
+    <Card className="flex flex-col gap-4">
+      <div>
+        <h2 className="text-base font-semibold text-stone-100 font-display tracking-wide">OpenRouter API Key</h2>
+        <p className="text-xs text-stone-400 font-sans mt-1">
+          Used to route OpenAI and general LLM requests via secure endpoints.
+        </p>
+      </div>
+
+      {isLoading ? (
+        <Spinner />
+      ) : (
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center justify-between bg-m3-bg/40 px-4 py-2.5 rounded-full border border-m3-border/10">
+            <span className="text-xs text-stone-400">Status</span>
+            <span className="text-xs font-mono font-medium text-[#a8c7fa]">
+              {secret?.present ? `Present (fingerprint: ${secret.fingerprint})` : 'Not configured'}
+            </span>
+          </div>
+
           {secret?.present ? (
-            <div className="flex gap-2">
-              <Button variant="secondary" loading={delMut.isPending} onClick={() => delMut.mutate()}>Remove key</Button>
+            <div className="flex justify-end">
+              <Button
+                variant="secondary"
+                size="sm"
+                loading={delMut.isPending}
+                onClick={() => delMut.mutate()}
+              >
+                Remove Key
+              </Button>
             </div>
           ) : null}
-          <div className="flex gap-2 mt-3">
+
+          <div className="flex flex-col sm:flex-row gap-3 mt-2">
             <Input
-              placeholder="sk-or-..."
+              placeholder="sk-or-... (Paste custom API key)"
               value={value}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
-              className="flex-1"
+              className="flex-1 font-mono text-xs"
             />
-            <Button loading={putMut.isPending} onClick={() => value.trim() && putMut.mutate(value.trim())}>
-              Save
+            <Button
+              loading={putMut.isPending}
+              disabled={!value.trim()}
+              onClick={() => value.trim() && putMut.mutate(value.trim())}
+              className="sm:w-auto"
+            >
+              Save Key
             </Button>
           </div>
-        </>
+        </div>
       )}
     </Card>
   )
@@ -86,7 +122,10 @@ function MdbListKeySection() {
 
   const putMut = useMutation({
     mutationFn: async (v: string) => api.secrets.mdblist.put(v),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['secret', 'mdblist'] }); setValue('') },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['secret', 'mdblist'] })
+      setValue('')
+    },
   })
 
   const delMut = useMutation({
@@ -95,36 +134,67 @@ function MdbListKeySection() {
   })
 
   return (
-    <Card>
-      <h2 className="text-sm font-medium text-stone-400 mb-3">MDBList API Key</h2>
-      {isLoading ? <Spinner /> : (
-        <>
-          <p className="text-xs text-stone-500 mb-3">
-            {secret?.present ? `Present (fingerprint: ${secret.fingerprint})` : 'Not set'}
-          </p>
+    <Card className="flex flex-col gap-4">
+      <div>
+        <h2 className="text-base font-semibold text-stone-100 font-display tracking-wide">MDBList API Key</h2>
+        <p className="text-xs text-stone-400 font-sans mt-1">
+          Used to gather metadata details, ratings, and filters for library imports.
+        </p>
+      </div>
+
+      {isLoading ? (
+        <Spinner />
+      ) : (
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center justify-between bg-m3-bg/40 px-4 py-2.5 rounded-full border border-m3-border/10">
+            <span className="text-xs text-stone-400">Status</span>
+            <span className="text-xs font-mono font-medium text-[#a8c7fa]">
+              {secret?.present ? `Present (fingerprint: ${secret.fingerprint})` : 'Not configured'}
+            </span>
+          </div>
+
           {secret?.present ? (
-            <div className="flex gap-2">
-              <Button variant="secondary" loading={delMut.isPending} onClick={() => delMut.mutate()}>Remove key</Button>
+            <div className="flex justify-end">
+              <Button
+                variant="secondary"
+                size="sm"
+                loading={delMut.isPending}
+                onClick={() => delMut.mutate()}
+              >
+                Remove Key
+              </Button>
             </div>
           ) : null}
-          <div className="flex gap-2 mt-3">
+
+          <div className="flex flex-col sm:flex-row gap-3 mt-2">
             <Input
-              placeholder="mdblist key"
+              placeholder="Enter custom MDBList key"
               value={value}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
-              className="flex-1"
+              className="flex-1 font-mono text-xs"
             />
-            <Button loading={putMut.isPending} onClick={() => value.trim() && putMut.mutate(value.trim())}>
-              Save
+            <Button
+              loading={putMut.isPending}
+              disabled={!value.trim()}
+              onClick={() => value.trim() && putMut.mutate(value.trim())}
+              className="sm:w-auto"
+            >
+              Save Key
             </Button>
           </div>
-        </>
+        </div>
       )}
     </Card>
   )
 }
 
-function DeleteAccountSection({ signOut, navigate }: { signOut: () => Promise<void>; navigate: (path: string) => void }) {
+function DeleteAccountSection({
+  signOut,
+  navigate,
+}: {
+  signOut: () => Promise<void>
+  navigate: (path: string) => void
+}) {
   const [confirming, setConfirming] = useState(false)
   const [confirmText, setConfirmText] = useState('')
   const queryClient = useQueryClient()
@@ -140,23 +210,57 @@ function DeleteAccountSection({ signOut, navigate }: { signOut: () => Promise<vo
 
   if (!confirming) {
     return (
-      <Card>
-        <h2 className="text-sm font-medium text-red-400 mb-3">Danger zone</h2>
-        <Button variant="danger" onClick={() => setConfirming(true)}>Delete account</Button>
+      <Card className="border border-red-500/10 bg-red-500/[0.02] flex flex-col gap-4">
+        <div>
+          <h2 className="text-base font-semibold text-red-400 font-display tracking-wide">Danger Zone</h2>
+          <p className="text-xs text-stone-400 font-sans mt-1">
+            Permanently delete your Crispy account, configurations, key definitions, and settings.
+          </p>
+        </div>
+        <div className="flex justify-start">
+          <Button variant="danger" size="sm" onClick={() => setConfirming(true)}>
+            Delete Account
+          </Button>
+        </div>
       </Card>
     )
   }
 
   return (
-    <Card>
-      <h2 className="text-sm font-medium text-red-400 mb-3">Confirm account deletion</h2>
-      <p className="text-sm text-stone-500 mb-3">Type DELETE to confirm permanent account deletion.</p>
-      <Input value={confirmText} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setConfirmText(e.target.value)} placeholder="DELETE" />
-      <div className="flex gap-2 mt-3">
-        <Button variant="danger" disabled={confirmText !== 'DELETE'} loading={delMut.isPending} onClick={() => delMut.mutate()}>
-          Delete permanently
-        </Button>
-        <Button variant="secondary" onClick={() => { setConfirming(false); setConfirmText('') }}>Cancel</Button>
+    <Card className="border border-red-500/30 bg-red-500/[0.05] flex flex-col gap-4">
+      <div>
+        <h2 className="text-base font-semibold text-red-400 font-display tracking-wide">Confirm Account Deletion</h2>
+        <p className="text-xs text-stone-300 font-sans mt-1">
+          This operation is permanent. Type <strong className="text-red-400">DELETE</strong> to confirm deletion.
+        </p>
+      </div>
+
+      <div className="flex flex-col gap-3">
+        <Input
+          value={confirmText}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setConfirmText(e.target.value)}
+          placeholder="DELETE"
+          className="font-mono text-xs uppercase"
+        />
+        <div className="flex gap-3 mt-1">
+          <Button
+            variant="danger"
+            disabled={confirmText !== 'DELETE'}
+            loading={delMut.isPending}
+            onClick={() => delMut.mutate()}
+          >
+            Delete Permanently
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={() => {
+              setConfirming(false)
+              setConfirmText('')
+            }}
+          >
+            Cancel
+          </Button>
+        </div>
       </div>
     </Card>
   )

@@ -37,7 +37,7 @@ export function AddonsPage() {
   }
 
   const handleToggle = (index: number) => {
-    const updated = addons.map((a, i) => i === index ? { ...a, enabled: !a.enabled } : a)
+    const updated = addons.map((a, i) => (i === index ? { ...a, enabled: !a.enabled } : a))
     saveMut.mutate({ addons: updated })
   }
 
@@ -47,48 +47,86 @@ export function AddonsPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-semibold">Add-ons</h1>
+    <div className="flex flex-col gap-6 max-w-3xl">
+      <div className="flex flex-col gap-1">
+        <h1 className="text-2xl font-semibold tracking-wide font-display text-stone-100">Add-ons</h1>
+        <p className="text-xs text-stone-400 font-sans tracking-wide">
+          Extend Crispy with third-party extensions, custom metadata feeds, and libraries.
+        </p>
+      </div>
 
-      {isLoading ? <Spinner /> : (
-        <>
-          <div className="flex gap-2">
+      {isLoading ? (
+        <Spinner />
+      ) : (
+        <div className="flex flex-col gap-6">
+          
+          {/* Add-on Creation Form Row */}
+          <div className="flex flex-col sm:flex-row gap-3">
             <Input
-              placeholder="Add-on manifest URL"
+              placeholder="Enter add-on manifest URL (https://...)"
               value={manifestUrl}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setManifestUrl(e.target.value)}
-              className="flex-1"
+              className="flex-1 font-sans text-xs"
             />
-            <Button onClick={handleAdd} loading={saveMut.isPending}>Add</Button>
+            <Button onClick={handleAdd} loading={saveMut.isPending} className="sm:w-auto">
+              Add Extension
+            </Button>
           </div>
-          {error && <p className="text-sm text-red-400">{error}</p>}
+          
+          {error && <p className="text-xs text-red-400 font-sans ml-3">{error}</p>}
 
-          <div className="flex flex-col gap-3">
-            {addons.length === 0 && (
-              <p className="text-sm text-stone-500">No add-ons configured.</p>
-            )}
-            {addons.map((addon, i) => (
-              <Card key={i}>
-                <div className="flex items-center justify-between">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm truncate">{String(addon.manifestUrl ?? '')}</p>
-                    <p className="text-xs text-stone-500">
-                      {addon.enabled ? 'Enabled' : 'Disabled'}
+          {/* Grouped Addons List */}
+          <Card noPadding>
+            {addons.map((addon, i) => {
+              const isEnabled = addon.enabled
+              return (
+                <div
+                  key={i}
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-6 py-5 border-b border-m3-border/10 last:border-none hover:bg-m3-hover/30 transition-colors"
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="text-sm font-semibold text-stone-100 font-sans truncate max-w-[85%]">
+                        {String(addon.manifestUrl ?? '')}
+                      </p>
+                      
+                      {/* Active Chip */}
+                      <span
+                        className={`text-[9px] font-semibold px-2 py-0.5 rounded-full font-sans tracking-wider uppercase border ${
+                          isEnabled
+                            ? 'bg-m3-green/10 text-m3-green border-m3-green/20'
+                            : 'bg-stone-800 text-stone-500 border-stone-700'
+                        }`}
+                      >
+                        {isEnabled ? 'enabled' : 'disabled'}
+                      </span>
+                    </div>
+                    
+                    <p className="text-xs text-stone-500 font-sans mt-1">
+                      Manifest configuration loaded
                     </p>
                   </div>
-                  <div className="flex gap-2 ml-4">
-                    <Button variant="ghost" size="sm" onClick={() => handleToggle(i)}>
-                      {addon.enabled ? 'Disable' : 'Enable'}
+                  
+                  <div className="flex gap-2 self-end sm:self-center">
+                    <Button variant="secondary" size="sm" onClick={() => handleToggle(i)}>
+                      {isEnabled ? 'Disable' : 'Enable'}
                     </Button>
                     <Button variant="danger" size="sm" onClick={() => handleRemove(i)}>
                       Remove
                     </Button>
                   </div>
                 </div>
-              </Card>
-            ))}
-          </div>
-        </>
+              )
+            })}
+            
+            {addons.length === 0 && (
+              <div className="p-8 text-center">
+                <p className="text-xs text-stone-500 font-sans">No add-ons configured yet.</p>
+              </div>
+            )}
+          </Card>
+          
+        </div>
       )}
     </div>
   )

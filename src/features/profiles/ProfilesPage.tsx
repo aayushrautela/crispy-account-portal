@@ -20,38 +20,91 @@ export function ProfilesPage() {
 
   const profiles: Profile[] = Array.isArray((data as any)?.profiles) ? (data as any).profiles : []
 
+  // Dynamic colors for profile avatars
+  const avatarColors = [
+    'bg-m3-blue/15 text-m3-blue border-m3-blue/20',
+    'bg-m3-purple/15 text-m3-purple border-m3-purple/20',
+    'bg-m3-pink/15 text-m3-pink border-m3-pink/20',
+    'bg-m3-orange/15 text-m3-orange border-m3-orange/20',
+    'bg-m3-green/15 text-m3-green border-m3-green/20',
+  ]
+
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 max-w-3xl">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Profiles</h1>
-        <Button onClick={() => setCreating(true)}>Add profile</Button>
+        <div className="flex flex-col gap-1">
+          <h1 className="text-2xl font-semibold tracking-wide font-display text-stone-100">Profiles</h1>
+          <p className="text-xs text-stone-400 font-sans tracking-wide">
+            Manage secondary users, languages, content ratings, and custom region locks.
+          </p>
+        </div>
+        <Button onClick={() => setCreating(true)} variant="primary" size="sm">
+          Add Profile
+        </Button>
       </div>
 
-      {isLoading ? <Spinner /> : (
-        <div className="flex flex-col gap-3">
-          {profiles.map((p) => (
-            <Card key={p.id}>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium">{p.name}</p>
-                  <p className="text-xs text-stone-500">
-                    {p.interfaceLanguage ?? 'en'} {p.isKids ? '· Kids' : ''}
-                  </p>
+      {isLoading ? (
+        <Spinner />
+      ) : (
+        <Card noPadding>
+          {profiles.map((p, idx) => {
+            const avatarColorClass = avatarColors[idx % avatarColors.length]
+            const initial = p.name ? p.name.charAt(0).toUpperCase() : 'P'
+            return (
+              <div
+                key={p.id}
+                className="flex items-center justify-between gap-4 px-6 py-4 border-b border-m3-border/10 last:border-none hover:bg-m3-hover/30 transition-colors"
+              >
+                <div className="flex items-center gap-4 min-w-0 flex-1">
+                  {/* Dynamic Initial Avatar */}
+                  <div
+                    className={`h-11 w-11 rounded-full border flex items-center justify-center text-sm font-semibold font-display shadow-sm shrink-0 ${avatarColorClass}`}
+                  >
+                    {initial}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="text-sm font-semibold text-stone-100 font-sans tracking-wide leading-tight truncate">
+                        {p.name}
+                      </p>
+                      {p.isKids && (
+                        <span className="text-[10px] font-semibold bg-m3-orange/10 text-m3-orange border border-m3-orange/20 px-2 py-0.5 rounded-full font-sans tracking-wider uppercase">
+                          Kids
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-stone-400 font-sans mt-0.5 tracking-wide flex items-center gap-2 flex-wrap">
+                      <span>Language: <strong className="text-stone-300 font-medium capitalize">{p.interfaceLanguage ?? 'en'}</strong></span>
+                      {p.region && (
+                        <>
+                          <span className="text-stone-600 font-light">·</span>
+                          <span>Region: <strong className="text-stone-300 font-medium uppercase">{p.region}</strong></span>
+                        </>
+                      )}
+                    </p>
+                  </div>
                 </div>
-                <Button variant="ghost" onClick={() => setEditing(p)}>Edit</Button>
+                <Button variant="secondary" size="sm" onClick={() => setEditing(p)}>
+                  Edit
+                </Button>
               </div>
-            </Card>
-          ))}
+            )
+          })}
           {profiles.length === 0 && (
-            <p className="text-sm text-stone-500">No profiles yet.</p>
+            <div className="p-8 text-center">
+              <p className="text-sm text-stone-500 font-sans">No profiles created yet.</p>
+            </div>
           )}
-        </div>
+        </Card>
       )}
 
       {creating && (
         <ProfileFormModal
           onClose={() => setCreating(false)}
-          onSaved={() => { setCreating(false); queryClient.invalidateQueries({ queryKey: ['profiles'] }) }}
+          onSaved={() => {
+            setCreating(false)
+            queryClient.invalidateQueries({ queryKey: ['profiles'] })
+          }}
         />
       )}
 
@@ -59,14 +112,25 @@ export function ProfilesPage() {
         <ProfileFormModal
           profile={editing}
           onClose={() => setEditing(null)}
-          onSaved={() => { setEditing(null); queryClient.invalidateQueries({ queryKey: ['profiles'] }) }}
+          onSaved={() => {
+            setEditing(null)
+            queryClient.invalidateQueries({ queryKey: ['profiles'] })
+          }}
         />
       )}
     </div>
   )
 }
 
-function ProfileFormModal({ profile, onClose, onSaved }: { profile?: Profile; onClose: () => void; onSaved: () => void }) {
+function ProfileFormModal({
+  profile,
+  onClose,
+  onSaved,
+}: {
+  profile?: Profile
+  onClose: () => void
+  onSaved: () => void
+}) {
   const [name, setName] = useState(profile?.name ?? '')
   const [lang, setLang] = useState(profile?.interfaceLanguage ?? 'en')
   const [region, setRegion] = useState(profile?.region ?? '')
@@ -80,7 +144,8 @@ function ProfileFormModal({ profile, onClose, onSaved }: { profile?: Profile; on
   })
 
   const updateMut = useMutation({
-    mutationFn: async (body: Record<string, unknown>) => api.profiles.update(profile!.id as string, body),
+    mutationFn: async (body: Record<string, unknown>) =>
+      api.profiles.update(profile!.id as string, body),
     onSuccess: onSaved,
     onError: (e: Error) => setError(e.message),
   })
@@ -88,8 +153,12 @@ function ProfileFormModal({ profile, onClose, onSaved }: { profile?: Profile; on
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!name.trim()) return
-    const body: Record<string, unknown> = { name: name.trim(), interfaceLanguage: lang, isKids: kids }
-    if (region.trim()) body.region = region.trim()
+    const body: Record<string, unknown> = {
+      name: name.trim(),
+      interfaceLanguage: lang.trim(),
+      isKids: kids,
+    }
+    if (region.trim()) body.region = region.trim().toUpperCase()
     if (profile) {
       updateMut.mutate(body)
     } else {
@@ -98,20 +167,54 @@ function ProfileFormModal({ profile, onClose, onSaved }: { profile?: Profile; on
   }
 
   return (
-    <Modal title={profile ? 'Edit profile' : 'New profile'} onClose={onClose} open>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <Input label="Name" value={name} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)} required />
-        <Input label="Language" value={lang} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLang(e.target.value)} placeholder="en" />
-        <Input label="Region" value={region} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRegion(e.target.value)} placeholder="US" />
-        <label className="flex items-center gap-2 text-sm text-stone-400">
-          <input type="checkbox" checked={kids} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setKids(e.target.checked)} className="rounded" />
-          Kids profile
+    <Modal title={profile ? 'Edit Profile' : 'New Profile'} onClose={onClose} open>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+        <Input
+          label="Profile Name"
+          value={name}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
+          required
+          placeholder="e.g. Family Room, Office"
+        />
+        <div className="flex gap-4">
+          <Input
+            label="Language Code"
+            value={lang}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLang(e.target.value)}
+            placeholder="en, fr, de"
+            className="flex-1"
+          />
+          <Input
+            label="Region Code"
+            value={region}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRegion(e.target.value)}
+            placeholder="US, CA, FR"
+            className="flex-1 uppercase"
+          />
+        </div>
+
+        {/* M3 Styled Checkbox Toggle Row */}
+        <label className="flex items-center gap-3 px-3 py-2 rounded-2xl hover:bg-m3-hover/50 cursor-pointer transition-colors border border-m3-border/10">
+          <input
+            type="checkbox"
+            checked={kids}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setKids(e.target.checked)}
+            className="h-4.5 w-4.5 rounded border-stone-600 bg-stone-800 text-[#34a853] focus:ring-0 cursor-pointer accent-[#34a853]"
+          />
+          <div className="flex flex-col">
+            <span className="text-xs font-semibold text-stone-200">Kids Profile</span>
+            <span className="text-[10px] text-stone-500 mt-0.5">Filter mature items and enforce child ratings.</span>
+          </div>
         </label>
-        {error && <p className="text-sm text-red-400">{error}</p>}
-        <div className="flex gap-2 justify-end">
-          <Button variant="secondary" type="button" onClick={onClose}>Cancel</Button>
+
+        {error && <p className="text-xs text-red-400 font-sans ml-3">{error}</p>}
+
+        <div className="flex gap-3 justify-end mt-2">
+          <Button variant="secondary" type="button" onClick={onClose}>
+            Cancel
+          </Button>
           <Button type="submit" loading={createMut.isPending || updateMut.isPending}>
-            {profile ? 'Save' : 'Create'}
+            {profile ? 'Save Profile' : 'Create Profile'}
           </Button>
         </div>
       </form>

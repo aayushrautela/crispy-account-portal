@@ -20,21 +20,35 @@ export function ProviderImportsPage() {
   const selectedId = selectedProfileId ?? (profiles[0]?.id ?? null)
 
   return (
-    <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-semibold">Provider Imports</h1>
+    <div className="flex flex-col gap-6 max-w-3xl">
+      <div className="flex flex-col gap-1">
+        <h1 className="text-2xl font-semibold tracking-wide font-display text-stone-100">Provider Imports</h1>
+        <p className="text-xs text-stone-400 font-sans tracking-wide">
+          Sync watch histories, ratings, and active imports from global metadata streaming networks.
+        </p>
+      </div>
 
-      <div className="flex gap-2 flex-wrap">
-        {profiles.map((p) => (
-          <button
-            key={p.id}
-            onClick={() => setSelectedProfileId(p.id)}
-            className={`rounded-lg px-3 py-1.5 text-sm transition-colors ${
-              selectedId === p.id ? 'bg-stone-700 text-stone-100' : 'bg-stone-800/50 text-stone-500 hover:text-stone-300'
-            }`}
-          >
-            {p.name}
-          </button>
-        ))}
+      {/* M3 Filter Chips Row */}
+      <div className="flex gap-2.5 flex-wrap border-b border-m3-border/10 pb-4">
+        {profiles.map((p) => {
+          const isActive = selectedId === p.id
+          return (
+            <button
+              key={p.id}
+              onClick={() => setSelectedProfileId(p.id)}
+              className={`rounded-full px-5 py-2 text-xs font-semibold tracking-wider font-sans transition-all duration-200 ${
+                isActive
+                  ? 'bg-[#a8c7fa] text-[#062e6f] shadow-sm font-bold scale-[1.02]'
+                  : 'bg-m3-surface text-stone-400 border border-m3-border/20 hover:text-stone-200 hover:border-stone-500'
+              }`}
+            >
+              {p.name.toUpperCase()}
+            </button>
+          )
+        })}
+        {profiles.length === 0 && (
+          <p className="text-xs text-stone-500 font-sans">No profiles created yet to configure imports.</p>
+        )}
       </div>
 
       {selectedId && <ProviderImportView profileId={selectedId} />}
@@ -86,85 +100,155 @@ function ProviderImportView({ profileId }: { profileId: string }) {
   const jobs: ImportJob[] = Array.isArray((jobsData as any)?.jobs) ? (jobsData as any).jobs : []
 
   return (
-    <div className="flex flex-col gap-4">
-      {providerStates.map((ps) => (
-        <Card key={ps.provider}>
-          <div className="flex items-start justify-between">
-            <div>
-              <h3 className="text-sm font-medium capitalize">{ps.provider}</h3>
-              <p className="text-xs text-stone-500 mt-0.5">
-                {ps.statusLabel}
-                {ps.externalUsername ? ` · ${ps.externalUsername}` : ''}
-              </p>
-              {ps.connectionState === 'pending_authorization' && (
-                <p className="text-xs text-yellow-400 mt-1">Waiting for authorization...</p>
-              )}
-            </div>
-            <div className="flex gap-2">
-              {ps.canImport && (
-                <Button
-                  variant="primary"
-                  size="sm"
-                  loading={connectMut.isPending}
-                  onClick={() => connectMut.mutate({ provider: ps.provider, action: 'import' })}
-                >
-                  Import
-                </Button>
-              )}
-              {ps.canReconnect && (
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  loading={connectMut.isPending}
-                  onClick={() => connectMut.mutate({ provider: ps.provider, action: 'reconnect' })}
-                >
-                  Reconnect
-                </Button>
-              )}
-              {ps.primaryAction === 'connect' && (
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  loading={connectMut.isPending}
-                  onClick={() => connectMut.mutate({ provider: ps.provider, action: 'connect' })}
-                >
-                  Connect
-                </Button>
-              )}
-              {ps.canDisconnect && (
-                <Button
-                  variant="danger"
-                  size="sm"
-                  loading={disconnectMut.isPending}
-                  onClick={() => disconnectMut.mutate(ps.provider)}
-                >
-                  Disconnect
-                </Button>
-              )}
-            </div>
-          </div>
-        </Card>
-      ))}
-
-      {jobs.length > 0 && (
-        <div className="mt-4">
-          <h3 className="text-sm font-medium text-stone-400 mb-2">Import jobs</h3>
-          <div className="flex flex-col gap-2">
-            {jobs.map((job) => (
-              <div key={job.id} className="rounded-lg border border-stone-800 bg-stone-900/30 px-4 py-2 text-sm">
-                <span className="text-stone-500 capitalize">{job.provider}</span>
-                <span className={`ml-3 text-xs ${
-                  job.status === 'succeeded' ? 'text-green-400'
-                  : job.status === 'failed' ? 'text-red-400'
-                  : job.status === 'running' ? 'text-blue-400'
-                  : 'text-stone-500'
-                }`}>
-                  {job.status}
-                </span>
-                {job.errorMessage && <span className="ml-2 text-xs text-red-400">{job.errorMessage}</span>}
+    <div className="flex flex-col gap-6">
+      
+      {/* Grouped Connection Tiles */}
+      <Card noPadding>
+        {providerStates.map((ps) => {
+          const isConnected = ps.connectionState === 'authorized'
+          const isPending = ps.connectionState === 'pending_authorization'
+          
+          return (
+            <div
+              key={ps.provider}
+              className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-6 py-5 border-b border-m3-border/10 last:border-none hover:bg-m3-hover/[0.15] transition-colors"
+            >
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3 className="text-sm font-semibold capitalize text-stone-100 font-sans tracking-wide">
+                    {ps.provider}
+                  </h3>
+                  
+                  {/* Status Badges */}
+                  <span
+                    className={`text-[9px] font-semibold px-2 py-0.5 rounded-full font-sans tracking-wider uppercase border ${
+                      isConnected
+                        ? 'bg-m3-green/10 text-m3-green border-m3-green/20'
+                        : isPending
+                        ? 'bg-m3-orange/10 text-m3-orange border-m3-orange/20 animate-pulse'
+                        : 'bg-stone-800 text-stone-500 border-stone-700'
+                    }`}
+                  >
+                    {ps.connectionState?.replace('_', ' ') || 'disconnected'}
+                  </span>
+                </div>
+                
+                <p className="text-xs text-stone-400 font-sans mt-1">
+                  {ps.statusLabel}
+                  {ps.externalUsername ? (
+                    <>
+                      <span className="text-stone-600 font-light mx-1.5">·</span>
+                      <span>Connected as <strong className="text-stone-300 font-medium">{ps.externalUsername}</strong></span>
+                    </>
+                  ) : (
+                    ''
+                  )}
+                </p>
               </div>
-            ))}
+
+              <div className="flex gap-2 self-end sm:self-center">
+                {ps.canImport && (
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    loading={connectMut.isPending}
+                    onClick={() => connectMut.mutate({ provider: ps.provider, action: 'import' })}
+                  >
+                    Import
+                  </Button>
+                )}
+                {ps.canReconnect && (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    loading={connectMut.isPending}
+                    onClick={() => connectMut.mutate({ provider: ps.provider, action: 'reconnect' })}
+                  >
+                    Reconnect
+                  </Button>
+                )}
+                {ps.primaryAction === 'connect' && (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    loading={connectMut.isPending}
+                    onClick={() => connectMut.mutate({ provider: ps.provider, action: 'connect' })}
+                  >
+                    Connect
+                  </Button>
+                )}
+                {ps.canDisconnect && (
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    loading={disconnectMut.isPending}
+                    onClick={() => disconnectMut.mutate(ps.provider)}
+                  >
+                    Disconnect
+                  </Button>
+                )}
+              </div>
+            </div>
+          )
+        })}
+        {providerStates.length === 0 && (
+          <div className="p-8 text-center">
+            <p className="text-xs text-stone-500 font-sans">No sync providers available.</p>
           </div>
+        )}
+      </Card>
+
+      {/* Sync / Import Jobs Section */}
+      {jobs.length > 0 && (
+        <div className="flex flex-col gap-2.5 mt-2">
+          <h3 className="text-xs font-semibold text-stone-400 font-sans ml-4 uppercase tracking-wider">
+            Recent Sync History
+          </h3>
+          
+          <Card noPadding>
+            {jobs.map((job) => {
+              const isSuccess = job.status === 'succeeded'
+              const isFailed = job.status === 'failed'
+              const isRunning = job.status === 'running'
+              
+              return (
+                <div
+                  key={job.id}
+                  className="flex items-center justify-between gap-4 px-6 py-4 border-b border-m3-border/10 last:border-none"
+                >
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                    {/* Status Dot */}
+                    <span
+                      className={`h-2.5 w-2.5 rounded-full shrink-0 ${
+                        isSuccess
+                          ? 'bg-m3-green shadow-[0_0_8px_#34a853]'
+                          : isFailed
+                          ? 'bg-red-400 shadow-[0_0_8px_rgba(248,113,113,0.5)]'
+                          : isRunning
+                          ? 'bg-m3-blue shadow-[0_0_8px_#1a73e8] animate-pulse'
+                          : 'bg-stone-600'
+                      }`}
+                    />
+                    
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-semibold capitalize text-stone-100 font-sans truncate">
+                        {job.provider} sync
+                      </p>
+                      {job.errorMessage && (
+                        <p className="text-[10px] text-red-400 font-sans truncate mt-0.5">
+                          Error: {job.errorMessage}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <span className="text-[10px] font-semibold text-stone-400 uppercase font-sans tracking-wide">
+                    {job.status}
+                  </span>
+                </div>
+              )
+            })}
+          </Card>
         </div>
       )}
     </div>

@@ -12,10 +12,17 @@ function safeRedirect(value: string | null): string {
 
 function ExchangeFailure({ error }: { error: string }) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-stone-950">
-      <div className="text-center max-w-sm">
-        <h1 className="text-lg font-medium text-red-400 mb-2">Sign in failed</h1>
-        <p className="text-sm text-stone-500">{error}</p>
+    <div className="min-h-screen flex items-center justify-center bg-m3-bg text-[#e3e3e3] px-4 font-sans">
+      <div className="text-center max-w-md w-full bg-m3-surface rounded-3xl p-8 border border-m3-border/10 shadow-2xl">
+        <div className="h-16 w-16 bg-red-500/[0.08] text-red-400 rounded-full flex items-center justify-center mx-auto mb-5 text-2xl shadow-sm">
+          <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+        </div>
+        <h1 className="text-2xl font-bold text-red-400 font-display tracking-wide mb-2">Sign In Failed</h1>
+        <p className="text-sm text-stone-400 leading-relaxed max-w-xs mx-auto">
+          {error}
+        </p>
       </div>
     </div>
   )
@@ -68,7 +75,7 @@ export function AppHandoffPage() {
   }, [code, navigate, redirect, exchanged])
 
   if (!code) {
-    return <ExchangeFailure error="Missing handoff code." />
+    return <ExchangeFailure error="Missing handoff authentication code." />
   }
 
   if (error) {
@@ -76,10 +83,13 @@ export function AppHandoffPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-stone-950">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-stone-400 mx-auto mb-4" />
-        <p className="text-sm text-stone-400">Signing in...</p>
+    <div className="min-h-screen flex items-center justify-center bg-m3-bg text-[#e3e3e3] px-4 font-sans">
+      <div className="text-center max-w-md w-full bg-m3-surface rounded-3xl p-8 border border-m3-border/10 shadow-2xl flex flex-col items-center">
+        <div className="animate-spin h-10 w-10 border-4 border-[#a8c7fa] border-t-transparent rounded-full mb-5" />
+        <h2 className="text-xl font-bold text-stone-100 font-display tracking-wide mb-1">Authenticating</h2>
+        <p className="text-sm text-stone-400 leading-relaxed">
+          Establishing a secure handoff connection...
+        </p>
       </div>
     </div>
   )
