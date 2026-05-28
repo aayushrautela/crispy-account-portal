@@ -2,10 +2,13 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { api } from '../../api/client'
 import { useState } from 'react'
 import type { ProviderState, ImportJob } from '../../api/types'
+import traktIcon from '../../assets/trakt.svg'
+import simklIcon from '../../assets/simkl.svg'
 import {
   Button,
   Card,
   Chip,
+  Modal,
   Spinner,
   Accordion,
 } from '@heroui/react'
@@ -53,25 +56,18 @@ const PROVIDER_ICONS: Record<string, { bg: string; color: string; icon: React.Re
   trakt: {
     bg: '#fce8e6',
     color: '#c5221f',
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-        <polyline points="20 6 9 17 4 12" />
-      </svg>
-    ),
+    icon: <img src={traktIcon} alt="Trakt" className="w-5 h-5" />,
   },
   simkl: {
     bg: '#e8f0fe',
     color: '#1967d2',
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2.5 6.5c-.8.8-1.7 1.2-2.5 1.2s-1.7-.4-2.5-1.2c-.7-.7-1-1.5-1-2.5 0-.8.3-1.5.8-2 .6-.5 1.3-.8 2.2-.8.8 0 1.6.3 2.2.8.6.5.9 1.2.9 2h-2c0-.3-.1-.5-.3-.7-.2-.2-.4-.3-.7-.3s-.5.1-.7.3c-.2.2-.3.4-.3.7 0 .4.2.7.5 1 .8.6 1.5.8 2.3.8s1.5-.2 2.3-.8c.3-.3.5-.6.5-1 0-.8-.3-1.5-.9-2-.6-.5-1.3-.8-2.2-.8-1 0-1.8.3-2.5 1C9.3 5 9 6 9 7c0 .9.3 1.7.9 2.3.7.6 1.5 1 2.6 1.2v.1c-1 .2-1.9.6-2.5 1.2-.7.6-1 1.4-1 2.4 0 .9.3 1.7 1 2.3.6.6 1.4.9 2.5.9s1.8-.3 2.5-.9c.6-.6 1-1.4 1-2.3h-2c0 .4-.1.7-.3.9-.2.2-.5.3-.8.3s-.6-.1-.8-.3c-.2-.2-.3-.5-.3-.9s.1-.7.3-.9c.2-.2.5-.3.8-.3s.6.1.8.3c.2.2.3.5.3.9.2 0 .4-.1.6-.2.4-.3.6-.7.6-1.2 0-.5-.2-1-.6-1.3-.3-.3-.8-.5-1.4-.5z" />
-      </svg>
-    ),
+    icon: <img src={simklIcon} alt="Simkl" className="w-5 h-5" />,
   },
 }
 
 function ProviderImportView({ profileId }: { profileId: string }) {
   const queryClient = useQueryClient()
+  const [disconnectProvider, setDisconnectProvider] = useState<string | null>(null)
 
   const { data, isLoading } = useQuery({
     queryKey: ['importConnections', profileId],
@@ -103,6 +99,7 @@ function ProviderImportView({ profileId }: { profileId: string }) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['importConnections', profileId] })
       queryClient.invalidateQueries({ queryKey: ['importJobs', profileId] })
+      setDisconnectProvider(null)
     },
   })
 
@@ -121,6 +118,26 @@ function ProviderImportView({ profileId }: { profileId: string }) {
 
   return (
     <div className="flex flex-col gap-4">
+      {/* Disconnect Confirmation Modal */}
+      <Modal isOpen={!!disconnectProvider} onOpenChange={(open) => !open && setDisconnectProvider(null)}>
+        <Modal.Dialog>
+          <Modal.Header>
+            <Modal.Heading>Disconnect Provider</Modal.Heading>
+          </Modal.Header>
+          <Modal.Body>
+            <p className="text-default-500 text-sm">
+              Are you sure you want to disconnect <span className="font-medium text-foreground capitalize">{disconnectProvider}</span>? You can reconnect at any time.
+            </p>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button className="bg-default-200/50 text-default-600" onPress={() => setDisconnectProvider(null)}>Cancel</Button>
+            <Button className="bg-danger text-danger-foreground" isDisabled={disconnectMut.isPending} onPress={() => disconnectProvider && disconnectMut.mutate(disconnectProvider)}>
+              {disconnectMut.isPending ? 'Disconnecting...' : 'Disconnect'}
+            </Button>
+          </Modal.Footer>
+        </Modal.Dialog>
+      </Modal>
+
       {/* Provider Connection Rows */}
       <Card>
         <Card.Content className="p-0">
@@ -133,78 +150,83 @@ function ProviderImportView({ profileId }: { profileId: string }) {
               return (
                 <div
                   key={ps.provider}
-                  className="flex items-center gap-4 px-4 py-3"
+                  className="flex flex-col px-4 py-3 gap-3"
                 >
-                  <div className="shrink-0 flex items-center justify-center w-9 h-9 rounded-full" style={{ backgroundColor: providerIcon?.bg || '#e8e8e8', color: providerIcon?.color || '#5f6368' }}>
-                    {providerIcon ? (
-                      providerIcon.icon
-                    ) : (
-                      <span className="text-sm font-medium uppercase">{ps.provider.charAt(0)}</span>
-                    )}
-                  </div>
-                  
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-medium capitalize text-foreground">{ps.provider}</h3>
-                      <Chip 
-                        size="sm" 
-                        className={`h-5 text-[10px] ${isConnected ? 'bg-success/10 text-success' : isPending ? 'bg-warning/10 text-warning' : 'bg-default-200/50 text-default-500'}`}
-                      >
-                        {ps.connectionState?.replace('_', ' ') || 'disconnected'}
-                      </Chip>
-                    </div>
-                    <p className="text-sm text-default-500 mt-0.5 truncate">
-                      {ps.statusLabel}
-                      {ps.externalUsername && (
-                        <span className="ml-1">
-                          as <span className="font-medium text-foreground">{ps.externalUsername}</span>
-                        </span>
+                  <div className="flex items-center gap-4">
+                    <div className="shrink-0 flex items-center justify-center w-9 h-9 rounded-full" style={{ backgroundColor: providerIcon?.bg || '#e8e8e8', color: providerIcon?.color || '#5f6368' }}>
+                      {providerIcon ? (
+                        providerIcon.icon
+                      ) : (
+                        <span className="text-sm font-medium uppercase">{ps.provider.charAt(0)}</span>
                       )}
-                    </p>
-                  </div>
+                    </div>
 
-                  <div className="flex gap-2 shrink-0">
-                    {ps.canImport && (
-                      <Button
-                        className="bg-primary text-primary-foreground font-medium"
-                        size="sm"
-                        isDisabled={connectMut.isPending}
-                        onPress={() => connectMut.mutate({ provider: ps.provider, action: 'import' })}
-                      >
-                        Import
-                      </Button>
-                    )}
-                    {ps.canReconnect && (
-                      <Button
-                        className="bg-default-200/50 text-default-600"
-                        size="sm"
-                        isDisabled={connectMut.isPending}
-                        onPress={() => connectMut.mutate({ provider: ps.provider, action: 'reconnect' })}
-                      >
-                        Reconnect
-                      </Button>
-                    )}
-                    {ps.primaryAction === 'connect' && (
-                      <Button
-                        className="bg-default-200/50 text-default-600"
-                        size="sm"
-                        isDisabled={connectMut.isPending}
-                        onPress={() => connectMut.mutate({ provider: ps.provider, action: 'connect' })}
-                      >
-                        Connect
-                      </Button>
-                    )}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-medium capitalize text-foreground">{ps.provider}</h3>
+                        <Chip
+                          size="sm"
+                          className={`h-5 text-[10px] ${isConnected ? 'bg-success/10 text-success' : isPending ? 'bg-warning/10 text-warning' : 'bg-default-200/50 text-default-500'}`}
+                        >
+                          {ps.connectionState?.replace('_', ' ') || 'disconnected'}
+                        </Chip>
+                      </div>
+                      <p className="text-sm text-default-500 mt-0.5 truncate">
+                        {ps.statusLabel}
+                        {ps.externalUsername && (
+                          <span className="ml-1">
+                            as <span className="font-medium text-foreground">{ps.externalUsername}</span>
+                          </span>
+                        )}
+                      </p>
+                    </div>
+
                     {ps.canDisconnect && (
                       <Button
                         className="bg-danger/10 text-danger"
                         size="sm"
                         isDisabled={disconnectMut.isPending}
-                        onPress={() => disconnectMut.mutate(ps.provider)}
+                        onPress={() => setDisconnectProvider(ps.provider)}
                       >
                         Disconnect
                       </Button>
                     )}
                   </div>
+
+                  {(ps.canImport || ps.canReconnect || ps.primaryAction === 'connect') && (
+                    <div className="flex gap-2 pl-13">
+                      {ps.canImport && (
+                        <Button
+                          className="bg-primary text-primary-foreground font-medium"
+                          size="sm"
+                          isDisabled={connectMut.isPending}
+                          onPress={() => connectMut.mutate({ provider: ps.provider, action: 'import' })}
+                        >
+                          Import
+                        </Button>
+                      )}
+                      {ps.canReconnect && (
+                        <Button
+                          className="bg-default-200/50 text-default-600"
+                          size="sm"
+                          isDisabled={connectMut.isPending}
+                          onPress={() => connectMut.mutate({ provider: ps.provider, action: 'reconnect' })}
+                        >
+                          Reconnect
+                        </Button>
+                      )}
+                      {ps.primaryAction === 'connect' && (
+                        <Button
+                          className="bg-default-200/50 text-default-600"
+                          size="sm"
+                          isDisabled={connectMut.isPending}
+                          onPress={() => connectMut.mutate({ provider: ps.provider, action: 'connect' })}
+                        >
+                          Connect
+                        </Button>
+                      )}
+                    </div>
+                  )}
                 </div>
               )
             })}
