@@ -8,15 +8,26 @@
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;
   --font-display: "Outfit", sans-serif;
 
-  --color-m3-bg: #1a1a1d;
-  --color-m3-surface: #2d2e30;
-  --color-m3-hover: #3a3b3d;
-  --color-m3-border: #5f6368;
+  --color-m3-bg: #1e1e24;
+  --color-m3-surface: #28282e;
+  --color-m3-hover: #323238;
+  --color-m3-border: #3d3d44;
   --color-m3-green: #137333;
   --color-m3-blue: #1967d2;
   --color-m3-purple: #7627bb;
   --color-m3-pink: #c4185e;
   --color-m3-orange: #c5630c;
+}
+
+/* Dark grey surfaces per M3 spec — never pure black */
+.dark {
+  --background: #1e1e24;
+  --surface: #28282e;
+  --surface-secondary: #2e2e34;
+  --surface-tertiary: #35353b;
+  --default: #2e2e34;
+  --default-foreground: #e3e3e3;
+  --border: #3d3d44;
 }
 
 body {
