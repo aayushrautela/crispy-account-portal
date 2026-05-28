@@ -24,19 +24,21 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
   return (
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm transition-opacity duration-300"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
       onClick={(e) => {
         if (e.target === overlayRef.current) onClose()
       }}
     >
-      <div className="w-full max-w-md rounded-3xl bg-m3-surface p-8 shadow-2xl border border-m3-border/20 transition-all duration-300 transform scale-100">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-stone-100 font-display tracking-wide">{title}</h2>
+      <div className="w-full max-w-md mx-4 rounded-3xl bg-[#2d2e30] p-6 shadow-2xl border border-m3-border/20">
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-lg font-medium text-stone-100 font-display">{title}</h2>
           <button
             onClick={onClose}
-            className="text-stone-400 hover:text-stone-100 h-8 w-8 rounded-full flex items-center justify-center hover:bg-m3-hover transition-colors text-xl leading-none"
+            className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-m3-hover transition-colors text-stone-400 hover:text-stone-200"
           >
-            &times;
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+            </svg>
           </button>
         </div>
         <div>{children}</div>

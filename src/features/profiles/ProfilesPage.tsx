@@ -8,6 +8,14 @@ import { Modal } from '../../components/Modal'
 import { useState } from 'react'
 import type { Profile } from '../../api/types'
 
+const AVATAR_COLORS = [
+  { bg: 'rgba(26,115,232,0.15)', text: '#8ab4f8' },
+  { bg: 'rgba(167,51,255,0.15)', text: '#c58af9' },
+  { bg: 'rgba(208,24,132,0.15)', text: '#f28b82' },
+  { bg: 'rgba(227,116,0,0.15)', text: '#fcad70' },
+  { bg: 'rgba(52,168,83,0.15)', text: '#81c995' },
+]
+
 export function ProfilesPage() {
   const queryClient = useQueryClient()
   const [editing, setEditing] = useState<Profile | null>(null)
@@ -20,24 +28,10 @@ export function ProfilesPage() {
 
   const profiles: Profile[] = Array.isArray((data as any)?.profiles) ? (data as any).profiles : []
 
-  // Dynamic colors for profile avatars
-  const avatarColors = [
-    'bg-m3-blue/15 text-m3-blue border-m3-blue/20',
-    'bg-m3-purple/15 text-m3-purple border-m3-purple/20',
-    'bg-m3-pink/15 text-m3-pink border-m3-pink/20',
-    'bg-m3-orange/15 text-m3-orange border-m3-orange/20',
-    'bg-m3-green/15 text-m3-green border-m3-green/20',
-  ]
-
   return (
-    <div className="flex flex-col gap-6 max-w-3xl">
+    <div className="flex flex-col gap-6 pt-4">
       <div className="flex items-center justify-between">
-        <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-semibold tracking-wide font-display text-stone-100">Profiles</h1>
-          <p className="text-xs text-stone-400 font-sans tracking-wide">
-            Manage secondary users, languages, content ratings, and custom region locks.
-          </p>
-        </div>
+        <h1 className="text-2xl font-semibold tracking-wide font-display text-stone-100">Profiles</h1>
         <Button onClick={() => setCreating(true)} variant="primary" size="sm">
           Add Profile
         </Button>
@@ -47,54 +41,53 @@ export function ProfilesPage() {
         <Spinner />
       ) : (
         <Card noPadding>
-          {profiles.map((p, idx) => {
-            const avatarColorClass = avatarColors[idx % avatarColors.length]
-            const initial = p.name ? p.name.charAt(0).toUpperCase() : 'P'
-            return (
-              <div
-                key={p.id}
-                className="flex items-center justify-between gap-4 px-6 py-4 border-b border-m3-border/10 last:border-none hover:bg-m3-hover/30 transition-colors"
-              >
-                <div className="flex items-center gap-4 min-w-0 flex-1">
-                  {/* Dynamic Initial Avatar */}
+          <div className="py-1">
+            {profiles.map((p, idx) => {
+              const color = AVATAR_COLORS[idx % AVATAR_COLORS.length]
+              const initial = p.name ? p.name.charAt(0).toUpperCase() : 'P'
+              return (
+                <button
+                  key={p.id}
+                  onClick={() => setEditing(p)}
+                  className="w-full flex items-center gap-4 px-5 py-3.5 hover:bg-m3-hover/50 transition-colors text-left group"
+                >
                   <div
-                    className={`h-11 w-11 rounded-full border flex items-center justify-center text-sm font-semibold font-display shadow-sm shrink-0 ${avatarColorClass}`}
+                    className="h-10 w-10 rounded-full flex items-center justify-center text-sm font-semibold font-display shrink-0"
+                    style={{ backgroundColor: color.bg, color: color.text }}
                   >
                     {initial}
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <p className="text-sm font-semibold text-stone-100 font-sans tracking-wide leading-tight truncate">
-                        {p.name}
-                      </p>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-sm font-medium text-stone-100 font-sans truncate">{p.name}</h3>
                       {p.isKids && (
-                        <span className="text-[10px] font-semibold bg-m3-orange/10 text-m3-orange border border-m3-orange/20 px-2 py-0.5 rounded-full font-sans tracking-wider uppercase">
+                        <span className="text-[10px] font-semibold bg-m3-orange/10 text-m3-orange px-1.5 py-0.5 rounded-full">
                           Kids
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-stone-400 font-sans mt-0.5 tracking-wide flex items-center gap-2 flex-wrap">
-                      <span>Language: <strong className="text-stone-300 font-medium capitalize">{p.interfaceLanguage ?? 'en'}</strong></span>
-                      {p.region && (
-                        <>
-                          <span className="text-stone-600 font-light">·</span>
-                          <span>Region: <strong className="text-stone-300 font-medium uppercase">{p.region}</strong></span>
-                        </>
-                      )}
+                    <p className="text-xs text-stone-400 font-sans mt-0.5">
+                      Language: {p.interfaceLanguage ?? 'en'}
+                      {p.region && <span className="ml-1.5">· Region: {p.region.toUpperCase()}</span>}
                     </p>
                   </div>
-                </div>
-                <Button variant="secondary" size="sm" onClick={() => setEditing(p)}>
-                  Edit
-                </Button>
+                  <svg
+                    className="w-4 h-4 text-stone-500 shrink-0 group-hover:text-stone-300 transition-colors"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" />
+                  </svg>
+                </button>
+              )
+            })}
+
+            {profiles.length === 0 && (
+              <div className="p-8 text-center">
+                <p className="text-sm text-stone-500 font-sans">No profiles created yet.</p>
               </div>
-            )
-          })}
-          {profiles.length === 0 && (
-            <div className="p-8 text-center">
-              <p className="text-sm text-stone-500 font-sans">No profiles created yet.</p>
-            </div>
-          )}
+            )}
+          </div>
         </Card>
       )}
 
@@ -168,7 +161,7 @@ function ProfileFormModal({
 
   return (
     <Modal title={profile ? 'Edit Profile' : 'New Profile'} onClose={onClose} open>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <Input
           label="Profile Name"
           value={name}
@@ -176,45 +169,44 @@ function ProfileFormModal({
           required
           placeholder="e.g. Family Room, Office"
         />
-        <div className="flex gap-4">
+        <div className="flex gap-3">
           <Input
-            label="Language Code"
+            label="Language"
             value={lang}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLang(e.target.value)}
-            placeholder="en, fr, de"
+            placeholder="en"
             className="flex-1"
           />
           <Input
-            label="Region Code"
+            label="Region"
             value={region}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRegion(e.target.value)}
-            placeholder="US, CA, FR"
+            placeholder="US"
             className="flex-1 uppercase"
           />
         </div>
 
-        {/* M3 Styled Checkbox Toggle Row */}
-        <label className="flex items-center gap-3 px-3 py-2 rounded-2xl hover:bg-m3-hover/50 cursor-pointer transition-colors border border-m3-border/10">
+        <label className="flex items-center gap-3 px-3 py-2.5 rounded-2xl hover:bg-m3-hover/50 cursor-pointer transition-colors border border-m3-border/10">
           <input
             type="checkbox"
             checked={kids}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setKids(e.target.checked)}
-            className="h-4.5 w-4.5 rounded border-stone-600 bg-stone-800 text-[#34a853] focus:ring-0 cursor-pointer accent-[#34a853]"
+            className="h-4 w-4 rounded border-stone-600 bg-stone-800 accent-[#34a853]"
           />
           <div className="flex flex-col">
-            <span className="text-xs font-semibold text-stone-200">Kids Profile</span>
-            <span className="text-[10px] text-stone-500 mt-0.5">Filter mature items and enforce child ratings.</span>
+            <span className="text-xs font-medium text-stone-200">Kids Profile</span>
+            <span className="text-[10px] text-stone-500">Filter mature content and enforce child ratings</span>
           </div>
         </label>
 
-        {error && <p className="text-xs text-red-400 font-sans ml-3">{error}</p>}
+        {error && <p className="text-xs text-red-400 font-sans">{error}</p>}
 
-        <div className="flex gap-3 justify-end mt-2">
+        <div className="flex gap-3 justify-end pt-2">
           <Button variant="secondary" type="button" onClick={onClose}>
             Cancel
           </Button>
           <Button type="submit" loading={createMut.isPending || updateMut.isPending}>
-            {profile ? 'Save Profile' : 'Create Profile'}
+            {profile ? 'Save' : 'Create'}
           </Button>
         </div>
       </form>

@@ -17,8 +17,10 @@ export function Input({ label, error, className, id, ...props }: InputProps) {
       <input
         id={inputId}
         className={cn(
-          'rounded-full bg-m3-surface px-5 py-2.5 text-sm text-stone-100 placeholder-stone-500 outline-none transition-all duration-200 focus:ring-1 focus:ring-[#a8c7fa] focus:border-[#a8c7fa]',
-          error ? 'border border-red-400 focus:ring-red-400 focus:border-red-400' : 'border border-[#8e918f] focus:border-[#a8c7fa]',
+          'rounded-full bg-[#2d2e30] px-4 py-2.5 text-sm text-stone-100 placeholder-stone-500 outline-none transition-colors duration-150',
+          error
+            ? 'border border-red-400 focus:ring-1 focus:ring-red-400'
+            : 'border border-[#5f6368] focus:border-[#a8c7fa] focus:ring-1 focus:ring-[#a8c7fa]',
           className,
         )}
         {...props}

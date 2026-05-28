@@ -32,14 +32,9 @@ export function ApiKeysPage() {
   })
 
   return (
-    <div className="flex flex-col gap-6 max-w-3xl">
+    <div className="flex flex-col gap-6 pt-4">
       <div className="flex items-center justify-between">
-        <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-semibold tracking-wide font-display text-stone-100">API Keys</h1>
-          <p className="text-xs text-stone-400 font-sans tracking-wide">
-            Personal access tokens for the Crispy REST API.
-          </p>
-        </div>
+        <h1 className="text-2xl font-semibold tracking-wide font-display text-stone-100">API Keys</h1>
         <Button onClick={() => setCreating(true)} variant="primary" size="sm">
           Create Key
         </Button>
@@ -58,22 +53,28 @@ export function ApiKeysPage() {
         </Card>
       ) : tokens.length <= INITIAL_SHOW ? (
         <Card noPadding>
-          {tokens.map((t) => (
-            <TokenRow key={t.id} token={t} onRevoke={() => setRevoking(t)} />
-          ))}
+          <div className="py-1">
+            {tokens.map((t) => (
+              <TokenRow key={t.id} token={t} onRevoke={() => setRevoking(t)} />
+            ))}
+          </div>
         </Card>
       ) : (
         <>
           <Card noPadding>
-            {tokens.slice(0, INITIAL_SHOW).map((t) => (
-              <TokenRow key={t.id} token={t} onRevoke={() => setRevoking(t)} />
-            ))}
+            <div className="py-1">
+              {tokens.slice(0, INITIAL_SHOW).map((t) => (
+                <TokenRow key={t.id} token={t} onRevoke={() => setRevoking(t)} />
+              ))}
+            </div>
           </Card>
           <ExpandableSection title="Show more" count={tokens.length - INITIAL_SHOW}>
             <Card noPadding>
-              {tokens.slice(INITIAL_SHOW).map((t) => (
-                <TokenRow key={t.id} token={t} onRevoke={() => setRevoking(t)} />
-              ))}
+              <div className="py-1">
+                {tokens.slice(INITIAL_SHOW).map((t) => (
+                  <TokenRow key={t.id} token={t} onRevoke={() => setRevoking(t)} />
+                ))}
+              </div>
             </Card>
           </ExpandableSection>
         </>
@@ -108,26 +109,24 @@ export function ApiKeysPage() {
 
 function TokenRow({ token, onRevoke }: { token: PatToken; onRevoke: () => void }) {
   return (
-    <div className="flex items-center justify-between gap-4 px-6 py-4 border-b border-m3-border/10 last:border-none hover:bg-m3-hover/30 transition-colors">
-      <div className="flex items-center gap-4 min-w-0 flex-1">
-        <div className="h-10 w-10 shrink-0 rounded-full flex items-center justify-center bg-m3-blue/10 text-m3-blue">
-          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" />
-          </svg>
-        </div>
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold text-stone-100 font-sans tracking-wide truncate">{token.name}</p>
-          <p className="text-xs text-stone-400 font-sans mt-0.5 tracking-wide">
-            Created {new Date(token.createdAt).toLocaleDateString()}
-            {token.lastUsedAt ? (
-              <span className="ml-1.5">· Last used {new Date(token.lastUsedAt).toLocaleDateString()}</span>
-            ) : (
-              <span className="ml-1.5">· Never used</span>
-            )}
-          </p>
-        </div>
+    <div className="flex items-center gap-4 px-5 py-3.5 hover:bg-m3-hover/30 transition-colors">
+      <div className="h-10 w-10 shrink-0 rounded-full flex items-center justify-center bg-m3-blue/10">
+        <svg className="w-5 h-5 text-m3-blue" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" />
+        </svg>
       </div>
-      <Button variant="danger" size="sm" onClick={onRevoke}>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium text-stone-100 font-sans truncate">{token.name}</p>
+        <p className="text-xs text-stone-400 font-sans mt-0.5">
+          Created {new Date(token.createdAt).toLocaleDateString()}
+          {token.lastUsedAt ? (
+            <span className="ml-1.5">· Last used {new Date(token.lastUsedAt).toLocaleDateString()}</span>
+          ) : (
+            <span className="ml-1.5">· Never used</span>
+          )}
+        </p>
+      </div>
+      <Button variant="secondary" size="sm" onClick={onRevoke}>
         Revoke
       </Button>
     </div>
@@ -165,7 +164,7 @@ function CreateTokenModal({ onClose }: { onClose: () => void }) {
     <Modal title="Create API Key" onClose={onClose} open>
       {plaintext ? (
         <div className="flex flex-col gap-4">
-          <div className="p-3.5 bg-m3-orange/10 border border-m3-orange/20 rounded-2xl flex flex-col gap-1">
+          <div className="p-3 bg-m3-orange/10 border border-m3-orange/20 rounded-2xl flex flex-col gap-1">
             <p className="text-xs font-semibold text-m3-orange uppercase tracking-wider font-sans">
               Copy now
             </p>
@@ -174,11 +173,11 @@ function CreateTokenModal({ onClose }: { onClose: () => void }) {
             </p>
           </div>
 
-          <div className="rounded-2xl bg-m3-bg border border-m3-border/30 p-4 text-xs font-mono break-all select-all text-[#a8c7fa] tracking-wider leading-relaxed shadow-inner">
+          <div className="rounded-2xl bg-m3-bg border border-m3-border/30 p-4 text-xs font-mono break-all select-all text-[#a8c7fa] tracking-wider leading-relaxed">
             {plaintext}
           </div>
 
-          <div className="flex justify-end mt-1">
+          <div className="flex justify-end">
             <Button
               onClick={() => {
                 queryClient.invalidateQueries({ queryKey: ['pat'] })
@@ -190,7 +189,7 @@ function CreateTokenModal({ onClose }: { onClose: () => void }) {
           </div>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <Input
             label="Token Name"
             value={name}
@@ -201,7 +200,7 @@ function CreateTokenModal({ onClose }: { onClose: () => void }) {
 
           {error && <p className="text-xs text-red-400 font-sans">{error}</p>}
 
-          <div className="flex gap-3 justify-end mt-2">
+          <div className="flex gap-3 justify-end">
             <Button variant="secondary" type="button" onClick={onClose}>
               Cancel
             </Button>

@@ -5,16 +5,16 @@
 @theme {
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;
   --font-display: "Outfit", sans-serif;
-  
-  --color-m3-bg: #131314;
-  --color-m3-surface: #1e1f20;
-  --color-m3-hover: #2a2b2d;
-  --color-m3-border: #3c4043;
-  --color-m3-green: #34a853;
-  --color-m3-blue: #1a73e8;
-  --color-m3-purple: #a733ff;
-  --color-m3-pink: #d01884;
-  --color-m3-orange: #e37400;
+
+  --color-m3-bg: #1a1a1d;
+  --color-m3-surface: #2d2e30;
+  --color-m3-hover: #3a3b3d;
+  --color-m3-border: #5f6368;
+  --color-m3-green: #81c995;
+  --color-m3-blue: #8ab4f8;
+  --color-m3-purple: #c58af9;
+  --color-m3-pink: #f28b82;
+  --color-m3-orange: #fcad70;
 }
 
 body {
@@ -23,7 +23,6 @@ body {
   font-family: var(--font-sans);
 }
 
-/* Custom scrollbar to match M3 dark theme */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -32,9 +31,9 @@ body {
   background: var(--color-m3-bg);
 }
 ::-webkit-scrollbar-thumb {
-  background: #3c4043;
+  background: #5f6368;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #4f5357;
+  background: #74777b;
 }

@@ -21,36 +21,30 @@ export function ProviderImportsPage() {
   const selectedId = selectedProfileId ?? (profiles[0]?.id ?? null)
 
   return (
-    <div className="flex flex-col gap-6 max-w-3xl">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-semibold tracking-wide font-display text-stone-100">Imports</h1>
-        <p className="text-xs text-stone-400 font-sans tracking-wide">
-          Connect and sync with external providers like Trakt and Simkl.
-        </p>
-      </div>
+    <div className="flex flex-col gap-6 pt-4">
+      <h1 className="text-2xl font-semibold tracking-wide font-display text-stone-100">Imports</h1>
 
       {/* Profile Filter Chips */}
-      <div className="flex gap-2.5 flex-wrap border-b border-m3-border/10 pb-4">
-        {profiles.map((p) => {
-          const isActive = selectedId === p.id
-          return (
-            <button
-              key={p.id}
-              onClick={() => setSelectedProfileId(p.id)}
-              className={`rounded-full px-5 py-2 text-xs font-semibold tracking-wider font-sans transition-all duration-200 ${
-                isActive
-                  ? 'bg-[#a8c7fa] text-[#062e6f] shadow-sm font-bold scale-[1.02]'
-                  : 'bg-m3-surface text-stone-400 border border-m3-border/20 hover:text-stone-200 hover:border-stone-500'
-              }`}
-            >
-              {p.name.toUpperCase()}
-            </button>
-          )
-        })}
-        {profiles.length === 0 && (
-          <p className="text-xs text-stone-500 font-sans">No profiles yet.</p>
-        )}
-      </div>
+      {profiles.length > 0 && (
+        <div className="flex gap-2 flex-wrap">
+          {profiles.map((p) => {
+            const isActive = selectedId === p.id
+            return (
+              <button
+                key={p.id}
+                onClick={() => setSelectedProfileId(p.id)}
+                className={`rounded-full px-4 py-1.5 text-xs font-medium transition-colors ${
+                  isActive
+                    ? 'bg-[#a8c7fa] text-[#062e6f]'
+                    : 'bg-m3-surface text-stone-400 border border-m3-border/20 hover:text-stone-200'
+                }`}
+              >
+                {p.name}
+              </button>
+            )
+          })}
+        </div>
+      )}
 
       {selectedId && <ProviderImportView profileId={selectedId} />}
     </div>
@@ -100,143 +94,176 @@ function ProviderImportView({ profileId }: { profileId: string }) {
     : []
   const jobs: ImportJob[] = Array.isArray((jobsData as any)?.jobs) ? (jobsData as any).jobs : []
 
+  const PROVIDER_ICONS: Record<string, { bg: string; icon: React.ReactNode }> = {
+    trakt: {
+      bg: '#e01e1e',
+      icon: (
+        <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+        </svg>
+      ),
+    },
+    simkl: {
+      bg: '#1a73e8',
+      icon: (
+        <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8 12.5v-9l6 4.5-6 4.5z" />
+        </svg>
+      ),
+    },
+  }
+
   return (
     <div className="flex flex-col gap-6">
 
-      {/* Provider Connection Tiles */}
+      {/* Provider Connection Rows */}
       <Card noPadding>
-        {providerStates.map((ps) => {
-          const isConnected = ps.connectionState === 'connected'
-          const isPending = ps.connectionState === 'pending_authorization'
+        <div className="py-1">
+          {providerStates.map((ps) => {
+            const isConnected = ps.connectionState === 'connected'
+            const isPending = ps.connectionState === 'pending_authorization'
+            const providerStyle = PROVIDER_ICONS[ps.provider] || {
+              bg: '#5f6368',
+              icon: (
+                <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" />
+                </svg>
+              ),
+            }
 
-          return (
-            <div
-              key={ps.provider}
-              className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-6 py-5 border-b border-m3-border/10 last:border-none hover:bg-m3-hover/[0.15] transition-colors"
-            >
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h3 className="text-sm font-semibold capitalize text-stone-100 font-sans tracking-wide">
-                    {ps.provider}
-                  </h3>
-                  <span
-                    className={`text-[10px] font-semibold px-2 py-0.5 rounded-full font-sans tracking-wider uppercase border ${
-                      isConnected
-                        ? 'bg-m3-green/10 text-m3-green border-m3-green/20'
-                        : isPending
-                        ? 'bg-m3-orange/10 text-m3-orange border-m3-orange/20 animate-pulse'
-                        : 'bg-stone-800 text-stone-500 border-stone-700'
-                    }`}
+            return (
+              <div
+                key={ps.provider}
+                className="px-5 py-3.5 hover:bg-m3-hover/30 transition-colors"
+              >
+                <div className="flex items-center gap-4">
+                  <div
+                    className="h-10 w-10 rounded-full flex items-center justify-center shrink-0"
+                    style={{ backgroundColor: providerStyle.bg }}
                   >
-                    {ps.connectionState?.replace('_', ' ') || 'disconnected'}
-                  </span>
+                    {providerStyle.icon}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-sm font-medium capitalize text-stone-100 font-sans">
+                        {ps.provider}
+                      </h3>
+                      <span
+                        className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                          isConnected
+                            ? 'bg-m3-green/10 text-m3-green'
+                            : isPending
+                            ? 'bg-m3-orange/10 text-m3-orange'
+                            : 'bg-stone-800 text-stone-500'
+                        }`}
+                      >
+                        {ps.connectionState?.replace('_', ' ') || 'disconnected'}
+                      </span>
+                    </div>
+                    <p className="text-xs text-stone-400 font-sans mt-0.5">
+                      {ps.statusLabel}
+                      {ps.externalUsername && (
+                        <span className="ml-1.5">as <strong className="text-stone-300 font-medium">{ps.externalUsername}</strong></span>
+                      )}
+                    </p>
+                  </div>
+                  <div className="flex gap-2 shrink-0">
+                    {ps.canImport && (
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        loading={connectMut.isPending}
+                        onClick={() => connectMut.mutate({ provider: ps.provider, action: 'import' })}
+                      >
+                        Import
+                      </Button>
+                    )}
+                    {ps.canReconnect && (
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        loading={connectMut.isPending}
+                        onClick={() => connectMut.mutate({ provider: ps.provider, action: 'reconnect' })}
+                      >
+                        Reconnect
+                      </Button>
+                    )}
+                    {ps.primaryAction === 'connect' && (
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        loading={connectMut.isPending}
+                        onClick={() => connectMut.mutate({ provider: ps.provider, action: 'connect' })}
+                      >
+                        Connect
+                      </Button>
+                    )}
+                    {ps.canDisconnect && (
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        loading={disconnectMut.isPending}
+                        onClick={() => disconnectMut.mutate(ps.provider)}
+                      >
+                        Disconnect
+                      </Button>
+                    )}
+                  </div>
                 </div>
-                <p className="text-xs text-stone-400 font-sans mt-1">
-                  {ps.statusLabel}
-                  {ps.externalUsername && (
-                    <>
-                      <span className="text-stone-600 font-light mx-1.5">·</span>
-                      <span>as <strong className="text-stone-300 font-medium">{ps.externalUsername}</strong></span>
-                    </>
-                  )}
-                </p>
               </div>
-
-              <div className="flex gap-2 self-end sm:self-center">
-                {ps.canImport && (
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    loading={connectMut.isPending}
-                    onClick={() => connectMut.mutate({ provider: ps.provider, action: 'import' })}
-                  >
-                    Import
-                  </Button>
-                )}
-                {ps.canReconnect && (
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    loading={connectMut.isPending}
-                    onClick={() => connectMut.mutate({ provider: ps.provider, action: 'reconnect' })}
-                  >
-                    Reconnect
-                  </Button>
-                )}
-                {ps.primaryAction === 'connect' && (
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    loading={connectMut.isPending}
-                    onClick={() => connectMut.mutate({ provider: ps.provider, action: 'connect' })}
-                  >
-                    Connect
-                  </Button>
-                )}
-                {ps.canDisconnect && (
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    loading={disconnectMut.isPending}
-                    onClick={() => disconnectMut.mutate(ps.provider)}
-                  >
-                    Disconnect
-                  </Button>
-                )}
-              </div>
+            )
+          })}
+          {providerStates.length === 0 && (
+            <div className="p-8 text-center">
+              <p className="text-sm text-stone-500 font-sans">No providers available.</p>
             </div>
-          )
-        })}
-        {providerStates.length === 0 && (
-          <div className="p-8 text-center">
-            <p className="text-xs text-stone-500 font-sans">No providers available.</p>
-          </div>
-        )}
+          )}
+        </div>
       </Card>
 
-      {/* Import Jobs — collapsible */}
+      {/* Import History — collapsible */}
       {jobs.length > 0 && (
         <ExpandableSection title="Import History" count={jobs.length}>
           <Card noPadding>
-            {jobs.slice(0, 20).map((job) => {
-              const isSuccess = job.status === 'succeeded'
-              const isFailed = job.status === 'failed'
-              const isRunning = job.status === 'running'
+            <div className="py-1">
+              {jobs.slice(0, 20).map((job) => {
+                const isSuccess = job.status === 'succeeded'
+                const isFailed = job.status === 'failed'
+                const isRunning = job.status === 'running'
 
-              return (
-                <div
-                  key={job.id}
-                  className="flex items-center justify-between gap-4 px-6 py-4 border-b border-m3-border/10 last:border-none"
-                >
-                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                return (
+                  <div
+                    key={job.id}
+                    className="flex items-center gap-4 px-5 py-3"
+                  >
                     <span
                       className={`h-2.5 w-2.5 rounded-full shrink-0 ${
                         isSuccess
-                          ? 'bg-m3-green shadow-[0_0_8px_#34a853]'
+                          ? 'bg-m3-green'
                           : isFailed
-                          ? 'bg-red-400 shadow-[0_0_8px_rgba(248,113,113,0.5)]'
+                          ? 'bg-red-400'
                           : isRunning
-                          ? 'bg-m3-blue shadow-[0_0_8px_#1a73e8] animate-pulse'
+                          ? 'bg-m3-blue animate-pulse'
                           : 'bg-stone-600'
                       }`}
                     />
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs font-semibold capitalize text-stone-100 font-sans truncate">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-stone-100 font-sans truncate">
                         {job.provider} sync
                       </p>
                       {job.errorMessage && (
-                        <p className="text-[10px] text-red-400 font-sans truncate mt-0.5">
+                        <p className="text-xs text-red-400 font-sans truncate mt-0.5">
                           {job.errorMessage}
                         </p>
                       )}
                     </div>
+                    <span className="text-xs text-stone-400 font-sans shrink-0 capitalize">
+                      {job.status}
+                    </span>
                   </div>
-                  <span className="text-[10px] font-semibold text-stone-400 uppercase font-sans tracking-wide shrink-0">
-                    {job.status}
-                  </span>
-                </div>
-              )
-            })}
+                )
+              })}
+            </div>
           </Card>
         </ExpandableSection>
       )}

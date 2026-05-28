@@ -13,13 +13,13 @@ function safeRedirect(value: string | null): string {
 function ExchangeFailure({ error }: { error: string }) {
   return (
     <div className="min-h-screen flex items-center justify-center bg-m3-bg text-[#e3e3e3] px-4 font-sans">
-      <div className="text-center max-w-md w-full bg-m3-surface rounded-3xl p-8 border border-m3-border/10 shadow-2xl">
-        <div className="h-16 w-16 bg-red-500/[0.08] text-red-400 rounded-full flex items-center justify-center mx-auto mb-5 text-2xl shadow-sm">
+      <div className="text-center max-w-md w-full bg-[#2d2e30] rounded-3xl p-8 shadow-2xl">
+        <div className="h-16 w-16 bg-red-500/10 text-red-400 rounded-full flex items-center justify-center mx-auto mb-5">
           <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
             <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" />
           </svg>
         </div>
-        <h1 className="text-2xl font-bold text-red-400 font-display tracking-wide mb-2">Sign In Failed</h1>
+        <h1 className="text-2xl font-bold text-red-400 font-display mb-2">Sign In Failed</h1>
         <p className="text-sm text-stone-400 leading-relaxed max-w-xs mx-auto">
           {error}
         </p>
@@ -84,9 +84,9 @@ export function AppHandoffPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-m3-bg text-[#e3e3e3] px-4 font-sans">
-      <div className="text-center max-w-md w-full bg-m3-surface rounded-3xl p-8 border border-m3-border/10 shadow-2xl flex flex-col items-center">
-        <div className="animate-spin h-10 w-10 border-4 border-[#a8c7fa] border-t-transparent rounded-full mb-5" />
-        <h2 className="text-xl font-bold text-stone-100 font-display tracking-wide mb-1">Authenticating</h2>
+      <div className="text-center max-w-md w-full bg-[#2d2e30] rounded-3xl p-8 shadow-2xl flex flex-col items-center">
+        <div className="animate-spin h-10 w-10 border-4 border-m3-blue border-t-transparent rounded-full mb-5" />
+        <h2 className="text-xl font-bold text-stone-100 font-display mb-1">Authenticating</h2>
         <p className="text-sm text-stone-400 leading-relaxed">
           Establishing a secure handoff connection...
         </p>
