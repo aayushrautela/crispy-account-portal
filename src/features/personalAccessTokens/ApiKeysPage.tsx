@@ -105,11 +105,11 @@ export function ApiKeysPage() {
       {creating && <CreateTokenModal onClose={() => setCreating(false)} />}
 
       {revoking && (
-        <Dialog open onClose={() => setRevoking(null)} PaperProps={{ sx: { borderRadius: 3 } }}>
+        <Dialog open onClose={() => setRevoking(null)} slotProps={{ paper: { sx: { borderRadius: 3 } } }}>
           <DialogTitle>Revoke API Key</DialogTitle>
           <DialogContent>
             <Typography variant="body2" color="text.secondary">
-              Revoke <Typography component="span" fontWeight="500" color="text.primary">{revoking.name}</Typography>? This cannot be undone.
+              Revoke <Typography component="span" sx={{ fontWeight: 500 }} color="text.primary">{revoking.name}</Typography>? This cannot be undone.
             </Typography>
           </DialogContent>
           <DialogActions sx={{ p: 3, pt: 1 }}>
@@ -183,7 +183,7 @@ function CreateTokenModal({ onClose }: { onClose: () => void }) {
   }
 
   return (
-    <Dialog open onClose={plaintext ? undefined : onClose} fullWidth maxWidth="sm" PaperProps={{ sx: { borderRadius: 3 } }}>
+    <Dialog open onClose={plaintext ? undefined : onClose} fullWidth maxWidth="sm" slotProps={{ paper: { sx: { borderRadius: 3 } } }}>
       {plaintext ? (
         <>
           <DialogTitle>API Key Created</DialogTitle>

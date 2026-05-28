@@ -173,7 +173,7 @@ function ProfileFormModal({
   }
 
   return (
-    <Dialog open onClose={onClose} fullWidth maxWidth="sm" PaperProps={{ sx: { borderRadius: 3 } }}>
+    <Dialog open onClose={onClose} fullWidth maxWidth="sm" slotProps={{ paper: { sx: { borderRadius: 3 } } }}>
       <form onSubmit={handleSubmit}>
         <DialogTitle>{profile ? 'Edit Profile' : 'New Profile'}</DialogTitle>
         <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
@@ -201,7 +201,7 @@ function ProfileFormModal({
               onChange={(e) => setRegion(e.target.value)}
               placeholder="US"
               fullWidth
-              inputProps={{ style: { textTransform: 'uppercase' } }}
+              slotProps={{ htmlInput: { style: { textTransform: 'uppercase' } } }}
             />
           </Box>
           <FormControlLabel

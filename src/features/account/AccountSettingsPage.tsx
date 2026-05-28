@@ -131,7 +131,7 @@ function ApiKeyRow({
               placeholder={provider === 'openrouter' ? 'sk-or-...' : 'Enter MDBList key'}
               value={value}
               onChange={(e) => setValue(e.target.value)}
-              InputProps={{ sx: { fontFamily: 'monospace' } }}
+              slotProps={{ input: { sx: { fontFamily: 'monospace' } } }}
             />
             <Button 
               variant="contained" 
@@ -186,14 +186,14 @@ function DeleteAccountRow({
       <Collapse in={confirming} timeout="auto" unmountOnExit>
         <Box sx={{ px: 3, pb: 3, display: 'flex', flexDirection: 'column', gap: 2 }}>
           <Typography variant="body2" color="text.secondary">
-            This is permanent. Type <Typography component="span" color="error.main" fontWeight="bold">DELETE</Typography> to confirm.
+            This is permanent. Type <Typography component="span" color="error.main" sx={{ fontWeight: 'bold' }}>DELETE</Typography> to confirm.
           </Typography>
           <TextField
             size="small"
             value={confirmText}
             onChange={(e) => setConfirmText(e.target.value)}
             placeholder="DELETE"
-            InputProps={{ sx: { fontFamily: 'monospace' } }}
+            slotProps={{ input: { sx: { fontFamily: 'monospace' } } }}
           />
           <Box sx={{ display: 'flex', gap: 2 }}>
             <Button

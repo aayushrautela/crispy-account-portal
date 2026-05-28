@@ -177,7 +177,7 @@ function ProviderImportView({ profileId }: { profileId: string }) {
                       {ps.statusLabel}
                       {ps.externalUsername && (
                         <Box component="span" sx={{ ml: 1 }}>
-                          as <Typography component="span" fontWeight="500" color="text.primary">{ps.externalUsername}</Typography>
+                          as <Typography component="span" sx={{ fontWeight: 500 }} color="text.primary">{ps.externalUsername}</Typography>
                         </Box>
                       )}
                     </Typography>
