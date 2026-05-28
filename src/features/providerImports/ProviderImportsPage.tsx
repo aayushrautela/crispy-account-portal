@@ -68,6 +68,7 @@ const PROVIDER_ICONS: Record<string, { bg: string; color: string; icon: React.Re
 function ProviderImportView({ profileId }: { profileId: string }) {
   const queryClient = useQueryClient()
   const [disconnectProvider, setDisconnectProvider] = useState<string | null>(null)
+  const [showConnectModal, setShowConnectModal] = useState(false)
 
   const { data, isLoading } = useQuery({
     queryKey: ['importConnections', profileId],
@@ -116,6 +117,13 @@ function ProviderImportView({ profileId }: { profileId: string }) {
     : []
   const jobs: ImportJob[] = Array.isArray((jobsData as any)?.jobs) ? (jobsData as any).jobs : []
 
+  const connectedProviders = providerStates.filter(
+    (ps) => ps.connectionState === 'connected' || ps.connectionState === 'pending_authorization' || ps.connectionState === 'reauthorization_required'
+  )
+  const disconnectedProviders = providerStates.filter(
+    (ps) => ps.connectionState === 'not_connected' || ps.connectionState === null
+  )
+
   return (
     <div className="flex flex-col gap-4">
       {/* Disconnect Confirmation Modal */}
@@ -138,11 +146,55 @@ function ProviderImportView({ profileId }: { profileId: string }) {
         </Modal.Dialog>
       </Modal>
 
-      {/* Provider Connection Rows */}
+      {/* Connect Provider Modal */}
+      <Modal isOpen={showConnectModal} onOpenChange={(open) => !open && setShowConnectModal(false)}>
+        <Modal.Dialog>
+          <Modal.Header>
+            <Modal.Heading>Connect Provider</Modal.Heading>
+          </Modal.Header>
+          <Modal.Body>
+            {disconnectedProviders.length === 0 ? (
+              <p className="text-default-500 text-sm">All providers are already connected.</p>
+            ) : (
+              <div className="flex flex-col gap-3">
+                {disconnectedProviders.map((ps) => {
+                  const providerIcon = PROVIDER_ICONS[ps.provider]
+                  return (
+                    <div key={ps.provider} className="flex items-center gap-3 p-3 rounded-xl bg-default-100/50">
+                      <div className="shrink-0 flex items-center justify-center w-9 h-9 rounded-full" style={{ backgroundColor: providerIcon?.bg || '#e8e8e8', color: providerIcon?.color || '#5f6368' }}>
+                        {providerIcon ? providerIcon.icon : (
+                          <span className="text-sm font-medium uppercase">{ps.provider.charAt(0)}</span>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-medium capitalize text-foreground">{ps.provider}</h3>
+                        <p className="text-xs text-default-500">{ps.statusLabel}</p>
+                      </div>
+                      <Button
+                        className="bg-primary text-primary-foreground font-medium"
+                        size="sm"
+                        isDisabled={connectMut.isPending}
+                        onPress={() => connectMut.mutate({ provider: ps.provider, action: ps.primaryAction })}
+                      >
+                        Connect
+                      </Button>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </Modal.Body>
+          <Modal.Footer>
+            <Button className="bg-default-200/50 text-default-600" onPress={() => setShowConnectModal(false)}>Close</Button>
+          </Modal.Footer>
+        </Modal.Dialog>
+      </Modal>
+
+      {/* Connected Providers */}
       <Card>
         <Card.Content className="p-0">
           <div className="flex flex-col divide-y divide-default-100">
-            {providerStates.map((ps) => {
+            {connectedProviders.map((ps) => {
               const isConnected = ps.connectionState === 'connected'
               const isPending = ps.connectionState === 'pending_authorization'
               const providerIcon = PROVIDER_ICONS[ps.provider]
@@ -230,14 +282,24 @@ function ProviderImportView({ profileId }: { profileId: string }) {
                 </div>
               )
             })}
-            {providerStates.length === 0 && (
+            {connectedProviders.length === 0 && (
               <div className="p-8 text-center text-default-500">
-                No providers available.
+                No providers connected yet.
               </div>
             )}
           </div>
         </Card.Content>
       </Card>
+
+      {/* Connect More Providers Button */}
+      {disconnectedProviders.length > 0 && (
+        <Button
+          className="w-full bg-default-200/50 text-default-600 font-medium"
+          onPress={() => setShowConnectModal(true)}
+        >
+          + Connect Provider
+        </Button>
+      )}
 
       {/* Import History */}
       {jobs.length > 0 && (
