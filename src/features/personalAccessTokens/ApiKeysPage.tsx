@@ -12,7 +12,6 @@ import {
   Modal,
   Accordion,
 } from '@heroui/react'
-import SecurityIcon from '@mui/icons-material/Security'
 import KeyIcon from '@mui/icons-material/Key'
 
 const INITIAL_SHOW = 4
