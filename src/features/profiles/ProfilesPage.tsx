@@ -5,7 +5,6 @@ import type { Profile } from '../../api/types'
 import {
   Button,
   Card,
-  Avatar,
   Chip,
   Spinner,
   Modal,

@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
 import avatarImg from '../assets/avatar.png'
-import { Card, Avatar, Spinner } from '@heroui/react'
+import { Card, Spinner } from '@heroui/react'
 import PersonIcon from '@mui/icons-material/Person'
 import SecurityIcon from '@mui/icons-material/Security'
 import GroupIcon from '@mui/icons-material/Group'
@@ -74,7 +74,7 @@ export function DashboardPage() {
       
       {/* User Profile — matches Google Account profile block */}
       <div className="flex items-center gap-4 pb-2">
-        <Avatar src={avatarImg} alt="Avatar" className="w-16 h-16 border-2 border-primary" />
+        <img src={avatarImg} alt="Avatar" className="w-16 h-16 rounded-full border-2 border-primary" />
         <div className="flex-1 min-w-0">
           <h2 className="text-2xl font-medium capitalize truncate">
             {userName}

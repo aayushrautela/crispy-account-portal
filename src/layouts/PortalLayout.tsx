@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/useSession'
 import avatarImg from '../assets/avatar.png'
-import { Button, Avatar } from '@heroui/react'
+import { Button } from '@heroui/react'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import SearchIcon from '@mui/icons-material/Search'
 import LogoutIcon from '@mui/icons-material/Logout'
@@ -32,7 +32,7 @@ export function PortalLayout({ children }: { children: React.ReactNode }) {
             
             <div className="w-12 flex justify-center">
               {!isHome && (
-                <Button isIconOnly variant="light" radius="full" onPress={() => navigate('/')} aria-label="home">
+                <Button isIconOnly className="bg-transparent hover:bg-default-100" radius="full" onPress={() => navigate('/')} aria-label="home">
                   <ArrowBackIcon />
                 </Button>
               )}
@@ -45,15 +45,15 @@ export function PortalLayout({ children }: { children: React.ReactNode }) {
             <div className="w-16 flex justify-end gap-1">
               {isHome ? (
                 <>
-                  <Button isIconOnly variant="light" radius="full" aria-label="search">
+                  <Button isIconOnly className="bg-transparent hover:bg-default-100" radius="full" aria-label="search">
                     <SearchIcon />
                   </Button>
-                  <Button isIconOnly variant="light" radius="full" aria-label="logout" onPress={() => signOut()}>
+                  <Button isIconOnly className="bg-transparent hover:bg-default-100" radius="full" aria-label="logout" onPress={() => signOut()}>
                     <LogoutIcon />
                   </Button>
                 </>
               ) : (
-                <Avatar src={avatarImg} alt="Avatar" size="sm" className="border-2 border-primary" />
+                <img src={avatarImg} alt="Avatar" className="w-8 h-8 rounded-full border-2 border-primary" />
               )}
             </div>
 

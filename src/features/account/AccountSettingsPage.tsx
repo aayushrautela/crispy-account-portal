@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../auth/useSession'
 import { 
   Card, 
-  Avatar, 
   Button,
   Input
 } from '@heroui/react'

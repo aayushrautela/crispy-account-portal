@@ -5,7 +5,6 @@ import type { ProviderState, ImportJob } from '../../api/types'
 import {
   Button,
   Card,
-  Avatar,
   Chip,
   Spinner,
   Accordion,
@@ -36,9 +35,7 @@ export function ProviderImportsPage() {
             return (
               <Chip
                 key={p.id}
-                color={isActive ? 'primary' : 'default'}
-                variant={isActive ? 'solid' : 'bordered'}
-                className="cursor-pointer font-medium"
+                className={`cursor-pointer font-medium ${isActive ? 'bg-primary text-primary-foreground' : 'bg-transparent border border-default-200 text-default-700'}`}
                 onClick={() => setSelectedProfileId(p.id)}
               >
                 {p.name}
@@ -153,9 +150,7 @@ function ProviderImportView({ profileId }: { profileId: string }) {
                       <h3 className="font-medium capitalize text-foreground">{ps.provider}</h3>
                       <Chip 
                         size="sm" 
-                        color={isConnected ? 'success' : isPending ? 'warning' : 'default'}
-                        variant={isConnected || isPending ? 'bordered' : 'solid'}
-                        className="h-5 text-[10px]"
+                        className={`h-5 text-[10px] ${isConnected || isPending ? 'border border-default-200 bg-transparent' : 'bg-default-100'} ${isConnected ? 'text-success' : isPending ? 'text-warning' : 'text-default-500'}`}
                       >
                         {ps.connectionState?.replace('_', ' ') || 'disconnected'}
                       </Chip>

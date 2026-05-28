@@ -164,9 +164,7 @@ function AddonRow({
           </p>
           <Chip 
             size="sm" 
-            color={isEnabled ? 'success' : 'default'}
-            variant={isEnabled ? 'bordered' : 'solid'}
-            className="h-5 text-[10px]"
+            className={`h-5 text-[10px] ${isEnabled ? 'border border-default-200 bg-transparent text-success' : 'bg-default-100 text-default-500'}`}
           >
             {isEnabled ? 'on' : 'off'}
           </Chip>
