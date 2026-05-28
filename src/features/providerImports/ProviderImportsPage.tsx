@@ -120,7 +120,7 @@ function ProviderImportView({ profileId }: { profileId: string }) {
               return (
                 <div
                   key={ps.provider}
-                  className="flex flex-col sm:flex-row items-start sm:items-center gap-3 px-4 py-3"
+                  className="flex items-center gap-4 px-4 py-3"
                 >
                   <div className="shrink-0 flex items-center justify-center w-9 h-9">
                     {providerIcon ? (
@@ -152,7 +152,7 @@ function ProviderImportView({ profileId }: { profileId: string }) {
                     </p>
                   </div>
 
-                  <div className="flex flex-wrap gap-2 mt-2 sm:mt-0">
+                  <div className="flex gap-2 shrink-0">
                     {ps.canImport && (
                       <Button
                         className="bg-primary text-primary-foreground font-medium"
