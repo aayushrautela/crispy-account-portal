@@ -1,6 +1,5 @@
 import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { HeroUIProvider } from '@heroui/react'
 import { AuthProvider } from '../auth/useSession'
 import { PortalLayout } from '../layouts/PortalLayout'
 import { RequireAuth } from '../auth/RequireAuth'
@@ -33,22 +32,15 @@ function AppRoutes() {
   )
 }
 
-function HeroUIProviderWrapper({ children }: { children: React.ReactNode }) {
-  const navigate = useNavigate();
-  return <HeroUIProvider navigate={navigate}>{children}</HeroUIProvider>;
-}
-
 export function App() {
   return (
     <main className="dark text-foreground bg-background min-h-screen">
       <BrowserRouter>
-        <HeroUIProviderWrapper>
-          <QueryClientProvider client={queryClient}>
-            <AuthProvider>
-              <AppRoutes />
-            </AuthProvider>
-          </QueryClientProvider>
-        </HeroUIProviderWrapper>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <AppRoutes />
+          </AuthProvider>
+        </QueryClientProvider>
       </BrowserRouter>
     </main>
   )

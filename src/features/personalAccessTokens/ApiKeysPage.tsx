@@ -5,18 +5,12 @@ import type { PatToken } from '../../api/types'
 import {
   Button,
   Card,
-  CardBody,
   Avatar,
   Chip,
   Spinner,
   Input,
   Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
   Accordion,
-  AccordionItem
 } from '@heroui/react'
 import SecurityIcon from '@mui/icons-material/Security'
 import KeyIcon from '@mui/icons-material/Key'
@@ -47,7 +41,7 @@ export function ApiKeysPage() {
     <div className="flex flex-col gap-6 pt-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-medium">API Keys</h1>
-        <Button color="primary" onPress={() => setCreating(true)}>
+        <Button className="bg-primary text-primary-foreground font-medium" onPress={() => setCreating(true)}>
           Create Key
         </Button>
       </div>
@@ -58,49 +52,48 @@ export function ApiKeysPage() {
         </div>
       ) : tokens.length === 0 ? (
         <Card className="py-12">
-          <CardBody className="flex flex-col items-center gap-4">
+          <Card.Content className="flex flex-col items-center gap-4">
             <KeyIcon className="text-default-300 w-12 h-12" />
             <p className="text-default-500 text-sm">No API keys yet.</p>
-          </CardBody>
+          </Card.Content>
         </Card>
       ) : tokens.length <= INITIAL_SHOW ? (
         <Card>
-          <CardBody className="p-0">
+          <Card.Content className="p-0">
             <div className="flex flex-col divide-y divide-default-100">
               {tokens.map((t) => (
                 <TokenRow key={t.id} token={t} onRevoke={() => setRevoking(t)} />
               ))}
             </div>
-          </CardBody>
+          </Card.Content>
         </Card>
       ) : (
         <div className="flex flex-col gap-4">
           <Card>
-            <CardBody className="p-0">
+            <Card.Content className="p-0">
               <div className="flex flex-col divide-y divide-default-100">
                 {tokens.slice(0, INITIAL_SHOW).map((t) => (
                   <TokenRow key={t.id} token={t} onRevoke={() => setRevoking(t)} />
                 ))}
               </div>
-            </CardBody>
+            </Card.Content>
           </Card>
-          <Accordion variant="bordered" className="bg-content1">
-            <AccordionItem 
-              key="more" 
-              aria-label="Show more" 
-              title={
-                <div className="flex items-center gap-2">
+          <Accordion className="bg-content1 rounded-xl shadow-sm border border-default-200">
+            <Accordion.Item>
+              <Accordion.Heading>
+                <Accordion.Trigger className="flex items-center gap-2 p-4">
                   <span className="font-medium">Show more</span>
-                  <Chip size="sm" variant="flat">{tokens.length - INITIAL_SHOW}</Chip>
+                  <Chip size="sm" className="bg-default-100">{tokens.length - INITIAL_SHOW}</Chip>
+                </Accordion.Trigger>
+              </Accordion.Heading>
+              <Accordion.Panel>
+                <div className="flex flex-col divide-y divide-default-100 border-t border-default-100">
+                  {tokens.slice(INITIAL_SHOW).map((t) => (
+                    <TokenRow key={t.id} token={t} onRevoke={() => setRevoking(t)} />
+                  ))}
                 </div>
-              }
-            >
-              <div className="flex flex-col divide-y divide-default-100 border-t border-default-100">
-                {tokens.slice(INITIAL_SHOW).map((t) => (
-                  <TokenRow key={t.id} token={t} onRevoke={() => setRevoking(t)} />
-                ))}
-              </div>
-            </AccordionItem>
+              </Accordion.Panel>
+            </Accordion.Item>
           </Accordion>
         </div>
       )}
@@ -108,24 +101,22 @@ export function ApiKeysPage() {
       {creating && <CreateTokenModal isOpen={creating} onClose={() => setCreating(false)} />}
 
       <Modal isOpen={!!revoking} onOpenChange={(open) => !open && setRevoking(null)}>
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader>Revoke API Key</ModalHeader>
-              <ModalBody>
-                <p className="text-default-500 text-sm">
-                  Revoke <span className="font-medium text-foreground">{revoking?.name}</span>? This cannot be undone.
-                </p>
-              </ModalBody>
-              <ModalFooter>
-                <Button variant="light" onPress={onClose}>Cancel</Button>
-                <Button color="danger" isLoading={revokeMut.isPending} onPress={() => revoking && revokeMut.mutate(revoking.id)}>
-                  Revoke
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
+        <Modal.Dialog>
+          <Modal.Header>
+            <Modal.Heading>Revoke API Key</Modal.Heading>
+          </Modal.Header>
+          <Modal.Body>
+            <p className="text-default-500 text-sm">
+              Revoke <span className="font-medium text-foreground">{revoking?.name}</span>? This cannot be undone.
+            </p>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button className="bg-default-100" onPress={() => setRevoking(null)}>Cancel</Button>
+            <Button className="bg-danger text-danger-foreground" isDisabled={revokeMut.isPending} onPress={() => revoking && revokeMut.mutate(revoking.id)}>
+              {revokeMut.isPending ? "Revoking..." : "Revoke"}
+            </Button>
+          </Modal.Footer>
+        </Modal.Dialog>
       </Modal>
     </div>
   )
@@ -134,7 +125,7 @@ export function ApiKeysPage() {
 function TokenRow({ token, onRevoke }: { token: PatToken; onRevoke: () => void }) {
   return (
     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 hover:bg-default-50 transition-colors">
-      <Avatar icon={<SecurityIcon fontSize="small" />} color="primary" classNames={{ base: "shrink-0" }} />
+      <Avatar className="shrink-0 bg-primary/10 text-primary" />
       
       <div className="flex-1">
         <p className="font-medium text-base">{token.name}</p>
@@ -145,7 +136,7 @@ function TokenRow({ token, onRevoke }: { token: PatToken; onRevoke: () => void }
         </p>
       </div>
 
-      <Button variant="bordered" size="sm" onPress={onRevoke}>
+      <Button className="border border-default-200 bg-transparent text-default-700" size="sm" onPress={onRevoke}>
         Revoke
       </Button>
     </div>
@@ -180,60 +171,60 @@ function CreateTokenModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
   }
 
   return (
-    <Modal isOpen={isOpen} onOpenChange={(open) => !open && !plaintext && onClose()} isDismissable={!plaintext} hideCloseButton={!!plaintext}>
-      <ModalContent>
-        {(onCloseFn) => (
+    <Modal isOpen={isOpen} onOpenChange={(open) => !open && !plaintext && onClose()}>
+      <Modal.Dialog>
+        {plaintext ? (
           <>
-            {plaintext ? (
-              <>
-                <ModalHeader>API Key Created</ModalHeader>
-                <ModalBody className="flex flex-col gap-4">
-                  <div className="p-3 bg-warning-100 text-warning-800 rounded-lg">
-                    <p className="font-bold text-xs uppercase tracking-wider mb-1">Copy now</p>
-                    <p className="text-sm">This token won't be shown again.</p>
-                  </div>
-                  <div className="p-3 bg-default-100 border border-default-200 rounded-lg font-mono text-sm break-all select-all text-primary">
-                    {plaintext}
-                  </div>
-                </ModalBody>
-                <ModalFooter>
-                  <Button 
-                    color="primary"
-                    onPress={() => {
-                      queryClient.invalidateQueries({ queryKey: ['pat'] })
-                      onCloseFn()
-                    }}
-                  >
-                    Done
-                  </Button>
-                </ModalFooter>
-              </>
-            ) : (
-              <form onSubmit={handleSubmit}>
-                <ModalHeader>Create API Key</ModalHeader>
-                <ModalBody className="flex flex-col gap-4">
-                  <Input
-                    autoFocus
-                    label="Token Name"
-                    value={name}
-                    onValueChange={setName}
-                    isRequired
-                    placeholder="e.g. desktop-app, cron-import"
-                    errorMessage={error}
-                    isInvalid={!!error}
-                  />
-                </ModalBody>
-                <ModalFooter>
-                  <Button variant="light" onPress={onCloseFn}>Cancel</Button>
-                  <Button type="submit" color="primary" isLoading={createMut.isPending}>
-                    Create
-                  </Button>
-                </ModalFooter>
-              </form>
-            )}
+            <Modal.Header>
+              <Modal.Heading>API Key Created</Modal.Heading>
+            </Modal.Header>
+            <Modal.Body className="flex flex-col gap-4">
+              <div className="p-3 bg-warning-100 text-warning-800 rounded-lg">
+                <p className="font-bold text-xs uppercase tracking-wider mb-1">Copy now</p>
+                <p className="text-sm">This token won't be shown again.</p>
+              </div>
+              <div className="p-3 bg-default-100 border border-default-200 rounded-lg font-mono text-sm break-all select-all text-primary">
+                {plaintext}
+              </div>
+            </Modal.Body>
+            <Modal.Footer>
+              <Button 
+                className="bg-primary text-primary-foreground"
+                onPress={() => {
+                  queryClient.invalidateQueries({ queryKey: ['pat'] })
+                  onClose()
+                }}
+              >
+                Done
+              </Button>
+            </Modal.Footer>
           </>
+        ) : (
+          <form onSubmit={handleSubmit}>
+            <Modal.Header>
+              <Modal.Heading>Create API Key</Modal.Heading>
+            </Modal.Header>
+            <Modal.Body className="flex flex-col gap-4">
+              <label className="text-sm font-medium">Token Name</label>
+              <Input
+                autoFocus
+                className="w-full bg-default-100 px-3 py-2 rounded-lg"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                placeholder="e.g. desktop-app, cron-import"
+              />
+              {error && <span className="text-sm text-danger">{error}</span>}
+            </Modal.Body>
+            <Modal.Footer>
+              <Button className="bg-default-100" onPress={onClose}>Cancel</Button>
+              <Button type="submit" className="bg-primary text-primary-foreground" isDisabled={createMut.isPending}>
+                {createMut.isPending ? "Creating..." : "Create"}
+              </Button>
+            </Modal.Footer>
+          </form>
         )}
-      </ModalContent>
+      </Modal.Dialog>
     </Modal>
   )
 }
